@@ -41,6 +41,7 @@ import org.w3c.dom.Comment;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -205,13 +206,17 @@ public class PostActivity extends AppCompatActivity {
                                 reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+1, comment, comment_date, true, isReplySecret, realKakaoId);
                                 secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
                             }else{
+                                Boolean isContainSecretMember = false;
                                 for(int i = 0; i<secretMemberItem.size(); i++){
                                     if(secretMemberItem.get(i).getKakaoId().equals(comment_kakaoId)){
                                         reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+secretMemberItem.get(i).getNum(), comment, comment_date, true, isReplySecret, realKakaoId);
-                                    }else{
-                                        reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+String.valueOf(secretMemberItem.size()+1), comment, comment_date, true, isReplySecret, realKakaoId);
-                                        secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
+                                        isContainSecretMember = true;
+                                        break;
                                     }
+                                }
+                                if(isContainSecretMember == false){
+                                    reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+String.valueOf(secretMemberItem.size()+1), comment, comment_date, true, isReplySecret, realKakaoId);
+                                    secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
                                 }
                             }
 
@@ -252,13 +257,17 @@ public class PostActivity extends AppCompatActivity {
                                 item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+1, comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
                                 secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
                             }else{
+                                Boolean isContainSecretMember = false;
                                 for(int i = 0; i<secretMemberItem.size(); i++){
                                     if(secretMemberItem.get(i).getKakaoId().equals(comment_kakaoId)){
                                         item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+secretMemberItem.get(i).getNum(), comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
-                                    }else{
-                                        item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+String.valueOf(secretMemberItem.size()+1), comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
-                                        secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
+                                        isContainSecretMember = true;
+                                        break;
                                     }
+                                }
+                                if(isContainSecretMember == false){
+                                    item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+String.valueOf(secretMemberItem.size()+1), comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
+                                    secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
                                 }
                             }
                         }
@@ -392,6 +401,9 @@ public class PostActivity extends AppCompatActivity {
                                         if (!comments.get(i).getReply()) {
                                             realPosition++;
                                         }
+                                    }
+                                    if(comments.get(position).getKakaoId().equals("")){
+                                        return;
                                     }
                                     // 대댓글이 아닌 댓글만 클릭 가능
                                     if (!comments.get(position).reply) {

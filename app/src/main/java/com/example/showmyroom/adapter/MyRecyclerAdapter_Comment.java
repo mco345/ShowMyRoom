@@ -135,12 +135,7 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                 @Override
                 public Unit invoke(User user, Throwable throwable) {
                     line.setVisibility(View.VISIBLE);
-                    // 비밀 댓글일 경우
-                    if(item.getSecret()){
-                        name.setVisibility(View.GONE);
-                        comment.setVisibility(View.GONE);
-                        secretComment.setVisibility(View.VISIBLE);
-                    }
+
 
                     // 아이디
                     if(item.getKakaoId().equals(item.getThisPostKakaoId())){
@@ -151,18 +146,6 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                         name.setTextColor(Color.BLACK);
                     }
 
-                    if(item.getUserId().equals("탈퇴한 회원")){
-                        userId = "("+item.getUserId()+")";
-                        name.setTypeface(Typeface.DEFAULT);
-                        name.setTextColor(Color.parseColor("#D3D3D3"));
-                    }else if(item.getUserId().equals("(삭제)")){
-                        userId = item.getUserId();
-                        name.setTypeface(Typeface.DEFAULT);
-                        name.setTextColor(Color.parseColor("#D3D3D3"));
-                    }
-
-
-
                     name.setText(userId);
                     // 내용
                     comment.setText(item.getComment());
@@ -171,6 +154,20 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                         date.setVisibility(View.GONE);
                     }else{
                         date.setText(formatTimeString(item.getDate()));
+                    }
+
+                    if(item.getUserId().equals("탈퇴한 회원")){
+                        userId = "("+item.getUserId()+")";
+                        name.setTypeface(Typeface.DEFAULT);
+                        name.setTextColor(Color.parseColor("#D3D3D3"));
+                    }else if(item.getUserId().equals("(삭제)")){
+                        userId = item.getUserId();
+                        name.setTypeface(Typeface.DEFAULT);
+                        name.setTextColor(Color.parseColor("#D3D3D3"));
+                    }else if(item.getSecret()){
+                        name.setVisibility(View.GONE);
+                        comment.setVisibility(View.GONE);
+                        secretComment.setVisibility(View.VISIBLE);
                     }
 
 
