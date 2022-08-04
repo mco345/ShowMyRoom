@@ -1,5 +1,7 @@
 package com.example.showmyroom.fragment;
 
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,12 +13,13 @@ import android.view.ViewGroup;
 
 import com.example.showmyroom.R;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
+    private View writeButton;
+
+    // 갤러리 호출
+    final int REQUEST_TAKE_ALBUM = 1;
+    PermissionCheck permissionCheck;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -33,19 +36,37 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-        long curTime = System.currentTimeMillis();
-        Date date = new Date(curTime);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String getDate = simpleDateFormat.format(date);
-        Date mDate = null;
-        try {
-            mDate = simpleDateFormat.parse(getDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        long timeInMilliseconds = mDate.getTime();
-        Log.d(TAG, String.valueOf(timeInMilliseconds/1000));
+
+        permissionCheck = new PermissionCheck(getActivity());
+
+        writeButton = v.findViewById(R.id.writeFloatingButton);
+        writeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getAlbum();
+            }
+        });
 
         return v;
     }
+
+    private void getAlbum(){
+        // 앨범 호출
+        boolean isAlbum = permissionCheck.isCheck("Album");
+        if(isAlbum){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_PICK);
+                    intent.setType("image/*");
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+                    startActivityForResult(Intent.createChooser(intent,"다중 선택은 '포토'를 선택하세요."), REQUEST_TAKE_ALBUM);
+                }catch(Exception e){
+                    Log.e("error", e.toString());
+                }
+            }
+            else{
+                Log.e("kitkat under", "..");
+            }
+        }
 }

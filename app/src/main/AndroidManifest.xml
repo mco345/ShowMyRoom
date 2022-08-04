@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- 카메라 사용, 5.0(API 21)이상부터는 camera2 권장, 기본 내장 카메라 사용 시 권한 요청 필요 없음 -->
+    <uses-feature android:name="android.hardware.camera"/>
 
     <application
         android:name=".KakaoApplication"
@@ -16,7 +21,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShowMyRoom"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FeedActivity"></activity>
+        <activity android:name=".activity.WriteHomeActivity"></activity>
+        <activity android:name=".activity.FeedActivity" />
         <activity android:name=".activity.PostEditActivity" />
         <activity android:name=".activity.PostActivity" />
         <activity android:name=".activity.WritePostActivity" />

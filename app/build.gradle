@@ -63,4 +63,7 @@ dependencies {
     // RecyclerView Paging
     implementation 'com.github.markomilos:paginate:1.0.0'
     implementation "androidx.recyclerview:recyclerview:1.2.0-alpha03"
+
+    //crop 라이브러리
+    implementation 'com.github.yalantis:ucrop:2.2.3'
 }

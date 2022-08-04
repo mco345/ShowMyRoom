@@ -146,16 +146,6 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                         name.setTextColor(Color.BLACK);
                     }
 
-                    name.setText(userId);
-                    // 내용
-                    comment.setText(item.getComment());
-                    // 날짜
-                    if(item.getDate().equals("")){
-                        date.setVisibility(View.GONE);
-                    }else{
-                        date.setText(formatTimeString(item.getDate()));
-                    }
-
                     if(item.getUserId().equals("탈퇴한 회원")){
                         userId = "("+item.getUserId()+")";
                         name.setTypeface(Typeface.DEFAULT);
@@ -169,6 +159,18 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                         comment.setVisibility(View.GONE);
                         secretComment.setVisibility(View.VISIBLE);
                     }
+
+                    name.setText(userId);
+                    // 내용
+                    comment.setText(item.getComment());
+                    // 날짜
+                    if(item.getDate().equals("")){
+                        date.setVisibility(View.GONE);
+                    }else{
+                        date.setText(formatTimeString(item.getDate()));
+                    }
+
+
 
 
                     // 대댓글일 경우
