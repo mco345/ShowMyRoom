@@ -144,5 +144,11 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginVertical="10dp"/>
 
+    <GridView
+        android:id="@+id/postGridView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="3"/>
+
 
 </LinearLayout>

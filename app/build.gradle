@@ -63,4 +63,7 @@ dependencies {
     // RecyclerView Paging
     implementation 'com.github.markomilos:paginate:1.0.0'
     implementation "androidx.recyclerview:recyclerview:1.2.0-alpha03"
+
+    // Crop Image
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.+' // 사진 크롭 위해
 }

@@ -1,5 +1,6 @@
 package com.example.showmyroom.fragment;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
+import com.example.showmyroom.activity.CropImageActivity;
 import com.example.showmyroom.activity.MainActivity;
 import com.example.showmyroom.activity.WriteHomeActivity;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,7 +30,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
@@ -38,11 +43,13 @@ public class HomeFragment extends Fragment {
     // 앨범 이미지 선택
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef, pathRef;
-    private ArrayList<Uri> uriList = new ArrayList<>();
+    private ArrayList<Uri> uriList = new ArrayList<>(); // 선택한 이미지 리스트
     // 사진 요청코드
     private static final int FROM_GALLARY = 0;
 
-    // 갤러리 호출
+    // crop
+    private int position = 0;
+    private ArrayList<Uri> cropList = new ArrayList<>();    // crop 후 이미지 리스트
 
     public HomeFragment() {
         // Required empty public constructor
@@ -82,10 +89,12 @@ public class HomeFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == FROM_GALLARY){
+        if(resultCode == Activity.RESULT_OK && requestCode == FROM_GALLARY){
+            position = 0;
+            cropList = new ArrayList<>();
             uriList = new ArrayList<>();
             if (data == null) {
-                Toast.makeText(getActivity(), "이미지를 선택하지 않았습니다.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), "이미지를 선택하지 않았습니다.", Toast.LENGTH_SHORT).show();
             } else {
                 if (data.getClipData() == null) {
                     Log.e(TAG, "single choice: "+String.valueOf(data.getData()));
@@ -95,30 +104,60 @@ public class HomeFragment extends Fragment {
                     ClipData clipData = data.getClipData();
                     Log.e("clipData", String.valueOf(clipData.getItemCount()));
 
-                    if (clipData.getItemCount() > 10) {
-                        Toast.makeText(getActivity(), "사진은 10장까지 선택 가능합니다.", Toast.LENGTH_SHORT).show();
+                    if (clipData.getItemCount() > 5) {
+                        Toast.makeText(getActivity(), "사진은 5장까지 선택 가능합니다.", Toast.LENGTH_SHORT).show();
                     } else {
                         Log.e(TAG, "multiple choice");
                         for(int i = 0; i < clipData.getItemCount(); i++){
                             Uri imageUri = clipData.getItemAt(i).getUri();
-
-                            try{
-                                uriList.add(imageUri);
-                            }catch (Exception e){
-                                Log.e(TAG, "File select error", e);
-                            }
+                            uriList.add(imageUri);
                         }
                     }
                 }
-                Intent intent = new Intent(getActivity(), WriteHomeActivity.class);
-                intent.putExtra("uriList", uriList);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                startCropActivity(uriList, position);
+
+
+
+            }
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            Log.d(TAG, "come back!");
+            try{
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                handleCropResult(result.getUri());
+            }catch (Exception e){
 
             }
         }
 
     }
+
+    private void startCropActivity(@NonNull ArrayList<Uri> uriList, int position) {
+        CropImage.activity(uriList.get(position)).setGuidelines(CropImageView.Guidelines.ON)
+                .setAspectRatio(1,1)
+                .setCropShape(CropImageView.CropShape.RECTANGLE)
+                .start(getContext(), HomeFragment.this);
+    }
+
+    private void handleCropResult(@NonNull Uri uri) {
+        if (uri != null) {
+            try{
+                cropList.add(uri);
+                Log.d(TAG, "cropList size : " + cropList.size());
+                position++;
+                if(cropList.size() == uriList.size()){
+                    Intent intent = new Intent(getActivity(), WriteHomeActivity.class);
+                    intent.putExtra("uriList", cropList);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }else{
+                    startCropActivity(uriList, position);
+                }
+            }catch (Exception e){
+                Log.e(TAG, "File select error", e);
+            }
+        }
+    }
+
 
     // 프로그래스바 다이얼로그
     private void showProgressDialog(String message) {
