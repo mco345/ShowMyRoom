@@ -402,9 +402,9 @@ public class PostActivity extends AppCompatActivity {
                                             realPosition++;
                                         }
                                     }
-                                    if(comments.get(position).getKakaoId().equals("")){
-                                        return;
-                                    }
+//                                    if(comments.get(position).getKakaoId().equals("")){
+//                                        return;
+//                                    }
                                     // 대댓글이 아닌 댓글만 클릭 가능
                                     if (!comments.get(position).reply) {
                                         if(comments.get(position).getSecret()){

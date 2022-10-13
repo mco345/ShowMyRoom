@@ -1,21 +1,33 @@
 package com.example.showmyroom.adapter;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.showmyroom.TimeMaximum;
+import com.example.showmyroom.activity.FeedActivity;
 import com.example.showmyroom.items.CommentItem;
 import com.example.showmyroom.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.kakao.sdk.user.UserApiClient;
 import com.kakao.sdk.user.model.User;
 
@@ -30,8 +42,10 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
 
 public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAdapter_Comment.ViewHolder> {
-    private static final String TAG = "commentAdapter:";
+    private static final String TAG = "commentAdapter";
     private ArrayList<CommentItem> commentList;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storageRef, pathRef;
 
     //아이템 클릭 리스너 인터페이스
     public interface OnItemClickListener{
@@ -45,10 +59,18 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
         this.mListener = listener;
     }
 
+    private int mode = -1;
+
     @NonNull
     @Override
     public MyRecyclerAdapter_Comment.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if(parent.getContext().toString().contains("FeedPostActivity")){
+            mode = 0;
+        }else if(parent.getContext().toString().contains("PostActivity")){
+            mode = 1;
+        }
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recyclerview_comment, parent, false);
+
         return new ViewHolder(view);
     }
 
@@ -67,6 +89,7 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
             Boolean isSecret = (Boolean) commentItem.get("secret");
             String realKakaoId = String.valueOf(commentItem.get("realKakaoId"));
             CommentItem item = new CommentItem(thisPostkakaoId, kakaoId, userId, comment, date, isReply, isSecret, realKakaoId);
+
             holder.onBind(item);
         }catch(Exception e){
             holder.onBind(commentList.get(position));
@@ -88,19 +111,24 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
         String userId, kakaoId;
         TextView name, secretComment, comment, date;
         View line;
-        ImageView arrow, secretImage;
+        ImageView arrow, commentImage, secretImage;
         ImageButton deleteButton;
+        LinearLayout commentLayout;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            commentLayout = (LinearLayout) itemView.findViewById(R.id.commentLayout);
             name = (TextView) itemView.findViewById(R.id.name);
             secretComment = (TextView) itemView.findViewById(R.id.secretMessage);
             comment = (TextView) itemView.findViewById(R.id.message);
             date = (TextView) itemView.findViewById(R.id.date);
             arrow = (ImageView) itemView.findViewById(R.id.replyImageView);
+            commentImage = (ImageView) itemView.findViewById(R.id.commentImageView);
             secretImage = (ImageView) itemView.findViewById(R.id.secretImage);
             deleteButton = (ImageButton) itemView.findViewById(R.id.commentDeleteButton);
             line = (View) itemView.findViewById(R.id.line);
+
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -135,6 +163,38 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                 @Override
                 public Unit invoke(User user, Throwable throwable) {
                     line.setVisibility(View.VISIBLE);
+
+
+
+                    // 프사
+                    if(mode == 0) {
+                        commentImage.setVisibility(View.VISIBLE);
+                        commentImage.setImageResource(0);
+                        storageRef = storage.getReference();
+                        pathRef = storageRef.child("Profile/" + item.getKakaoId() + ".png");
+                        pathRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Glide.with(commentImage.getContext()).load(uri).apply(RequestOptions.bitmapTransform(new RoundedCorners(14))).into(commentImage);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                commentImage.setImageResource(R.drawable.ic_baseline_person_24);
+                            }
+                        });
+                    }
+
+                    commentImage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(!item.getUserId().equals("(삭제)") && !item.getUserId().equals("탈퇴한 회원")){
+                                Intent intent = new Intent(v.getContext(), FeedActivity.class);
+                                intent.putExtra("kakaoId", item.getKakaoId());
+                                v.getContext().startActivity(intent);
+                            }
+                        }
+                    });
 
 
                     // 아이디

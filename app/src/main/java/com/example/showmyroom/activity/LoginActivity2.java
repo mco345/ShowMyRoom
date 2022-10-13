@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.showmyroom.items.Firebase_Feed;
 import com.example.showmyroom.items.Firebase_User;
 import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
@@ -38,6 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.kakao.sdk.user.UserApiClient;
 import com.kakao.sdk.user.model.User;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -275,9 +277,10 @@ public class LoginActivity2 extends AppCompatActivity {
     // 가입버튼 클릭시 파이어베이스에 정보 저장
     private void writeNewUser(String _kakaoId, String _id, String _name, int _birthYear, int _birthMonth, int _birthDate, String _inputPhoneNumber, String _address, String _profileImage) {
         Firebase_User user = new Firebase_User(_kakaoId, _id, _name, _birthYear, _birthMonth, _birthDate, _inputPhoneNumber, _address, _profileImage);
+        Firebase_Feed feed = new Firebase_Feed(_kakaoId, _id, "", "", "", "");
 
         mDatabase.child("users").child(_kakaoId).setValue(user);
-
+        mDatabase.child("feed").child(_kakaoId).setValue(feed);
     }
 
     // 인증번호 전송

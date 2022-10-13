@@ -86,7 +86,7 @@ public class SettingFragment extends Fragment {
     private StorageReference storageRef, pathRef;
 
     // 댓글
-    private ArrayList<CommentItem> commentItems;
+    private ArrayList<CommentItem> commentItems, commentItems2;
     private ArrayList<SecretMemberItem> secretMemberItems;
 
 
@@ -322,9 +322,83 @@ public class SettingFragment extends Fragment {
     // 작성한 게시물 또는 댓글 작성자 이름 탈퇴한 회원으로 변경
     public void deletePost() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        //피드
+        Query feed_query = db.collection("homePosts");
+        feed_query.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                if(document.getData().get("kakaoId").equals(kakaoId)){
+                                    db.collection("homePosts").document(document.getId())
+                                            .delete();
+                                }
+                                // 댓글 작성자 - 탈퇴한 회원으로 변경
+                                commentItems2 = new ArrayList<>();
+                                commentItems2 = (ArrayList<CommentItem>) document.getData().get("comment");
+
+                                for (int i = 0; i < commentItems2.size(); i++) {
+                                    Map commentItem2 = new HashMap();
+                                    commentItem2 = (Map) commentItems2.get(i);
+                                    String afterKakaoId = String.valueOf(commentItem2.get("kakaoId"));
+                                    String afterUserId = String.valueOf(commentItem2.get("userId"));
+                                    Log.d(TAG, "afterKakaoId-"+afterKakaoId+", afterUserId-"+afterUserId);
+                                    if (afterKakaoId.equals(kakaoId)) {
+                                        afterKakaoId = "";
+                                        afterUserId = "탈퇴한 회원";
+                                        Log.d(TAG, "comment delete success");
+                                    }
+                                    ArrayList<CommentItem> replyList2 = (ArrayList<CommentItem>) commentItem2.get("replyList");
+                                    if ((Boolean) commentItem2.get("mode")) {
+                                        for (int j = 0; j < replyList2.size(); j++) {
+                                            Map replyItem = new HashMap();
+                                            replyItem = (Map) replyList2.get(j);
+                                            if (replyItem.get("kakaoId").equals(kakaoId)) {
+                                                replyList2.set(j, new CommentItem(
+                                                        String.valueOf(replyItem.get("thisPostKakaoId")),
+                                                        "",
+                                                        "탈퇴한 회원",
+                                                        String.valueOf(replyItem.get("comment")),
+                                                        String.valueOf(replyItem.get("date")),
+                                                        true,
+                                                        (Boolean) replyItem.get("secret"),
+                                                        String.valueOf(replyItem.get("realKakaoId"))
+                                                ));
+                                            }
+                                        }
+
+                                    }
+                                    commentItems2.set(i, new CommentItem(
+                                            String.valueOf(commentItem2.get("thisPostKakaoId")),
+                                            afterKakaoId,
+                                            afterUserId,
+                                            String.valueOf(commentItem2.get("comment")),
+                                            String.valueOf(commentItem2.get("date")),
+                                            (Boolean) commentItem2.get("mode"),
+                                            (Boolean) commentItem2.get("reply"),
+                                            replyList2,
+                                            (Boolean) commentItem2.get("secret")
+                                    ));
+                                }
+
+                                db.collection("homePosts").document(document.getId())
+                                        .update("comment", commentItems2);
+                            }
+                        }
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+
+        // 게시판
         for (String board : boards) {
-            Query first = db.collection(board);
-            first.get()
+            Query board_query = db.collection(board);
+            board_query.get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {

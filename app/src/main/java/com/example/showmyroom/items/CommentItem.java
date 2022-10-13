@@ -14,6 +14,7 @@ public class CommentItem {
     public Boolean secret;
     String realKakaoId; // 대댓글 단 댓글의 최초 댓글의 카카오 아이디
 
+
     // 답글
     public CommentItem(String thisPostKakaoId, String kakaoId, String userId, String comment, String date, Boolean reply, Boolean secret, String realKakaoId) {
         this.thisPostKakaoId = thisPostKakaoId;

@@ -19,6 +19,6 @@
         app:menu="@menu/btm_navi_menu"
         app:itemBackground="@color/white">
 
-    </com.google.android.material.bottomnavigation.BottomNavigationView>\
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
 
 </LinearLayout>

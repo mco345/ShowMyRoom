@@ -47,7 +47,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 
 public class MenuFragment extends Fragment {
-    private static final String TAG = "MenuFragment : ";
+    private static final String TAG = "MenuFragment";
 
     RecyclerView recyclerView;
     private MyRecyclerAdapter_Board myRecyclerAdapterBoard;

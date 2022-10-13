@@ -65,5 +65,9 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.2.0-alpha03"
 
     // Crop Image
+    implementation 'com.yashoid:instacropper:1.0.6'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.+' // 사진 크롭 위해
+
+    // Circle Indicator
+    implementation 'me.relex:circleindicator:2.1.4'
 }

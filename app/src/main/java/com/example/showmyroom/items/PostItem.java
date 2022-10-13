@@ -10,8 +10,9 @@ public class PostItem {
     ArrayList<CommentItem> comment;
     String commentNum;
     String likeNum;
+    ArrayList<String> likeList;
 
-    public PostItem(String kakaoId, String id, String message, String date, ArrayList<CommentItem> comment, String commentNum, String likeNum) {
+    public PostItem(String kakaoId, String id, String message, String date, ArrayList<CommentItem> comment, String commentNum, String likeNum, ArrayList<String> likeList) {
         this.kakaoId = kakaoId;
         this.id = id;
         this.message = message;
@@ -19,6 +20,15 @@ public class PostItem {
         this.comment = comment;
         this.commentNum = commentNum;
         this.likeNum = likeNum;
+        this.likeList = likeList;
+    }
+
+    public ArrayList<String> getLikeList() {
+        return likeList;
+    }
+
+    public void setLikeList(ArrayList<String> likeList) {
+        this.likeList = likeList;
     }
 
     public String getKakaoId() {
