@@ -11,12 +11,14 @@ public class HomeItem {
     String likeNum;
     String commentNum;
     String id;
+    String message;
     ArrayList<String> likeList;
     ArrayList<Uri> postUriList;
 
-    public HomeItem(String thisFeedKakaoId, String userId, String date, String likeNum, String commentNum, String id, ArrayList<String> likeList) {
+    public HomeItem(String thisFeedKakaoId, String userId, String message, String date, String likeNum, String commentNum, String id, ArrayList<String> likeList) {
         this.thisFeedKakaoId = thisFeedKakaoId;
         this.userId = userId;
+        this.message = message;
         this.date = date;
         this.likeNum = likeNum;
         this.commentNum = commentNum;
@@ -24,15 +26,24 @@ public class HomeItem {
         this.likeList = likeList;
     }
 
-    public HomeItem(String thisFeedKakaoId, String userId, String date, String likeNum, String commentNum, String id, ArrayList<String> likeList, ArrayList<Uri> postUriList) {
+    public HomeItem(String thisFeedKakaoId, String userId, String message, String date, String likeNum, String commentNum, String id, ArrayList<String> likeList, ArrayList<Uri> postUriList) {
         this.thisFeedKakaoId = thisFeedKakaoId;
         this.userId = userId;
+        this.message = message;
         this.date = date;
         this.likeNum = likeNum;
         this.commentNum = commentNum;
         this.id = id;
         this.likeList = likeList;
         this.postUriList = postUriList;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public ArrayList<Uri> getPostUriList() {

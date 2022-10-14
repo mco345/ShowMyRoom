@@ -415,6 +415,11 @@ public class FeedPostActivity extends AppCompatActivity {
 
                             myRecyclerAdapter.setmCommentList(comments);
 
+
+                            // 댓글 개수 갱신
+                            db.collection("homePosts").document(postId)
+                                    .update("commentNum", String.valueOf(myRecyclerAdapter.getItemCount()));
+
                             // 댓글 클릭 이벤트
                             myRecyclerAdapter.setOnItemClickListener(new MyRecyclerAdapter_Comment.OnItemClickListener() {
                                 // 대댓글 달기

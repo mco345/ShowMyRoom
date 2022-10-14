@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.showmyroom.R;
+import com.example.showmyroom.TimeMaximum;
 import com.example.showmyroom.activity.FeedActivity;
 import com.example.showmyroom.activity.FeedPostActivity;
 import com.example.showmyroom.items.BoardItem;
@@ -39,7 +40,10 @@ import com.google.firebase.storage.StorageReference;
 import com.kakao.sdk.user.UserApiClient;
 import com.kakao.sdk.user.model.User;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
@@ -67,6 +71,17 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
     private ArrayList<HomeItem> mHomeList;
 
     private Context context = null;
+
+    //아이템 클릭 리스너 인터페이스
+    public interface OnItemClickListener{
+        void onItemClick(View v, int position); //뷰와 포지션값
+    }
+    //리스너 객체 참조 변수
+    private MyRecyclerAdapter_Board.OnItemClickListener mListener = null;
+    //리스너 객체 참조를 어댑터에 전달 메서드
+    public void setOnItemClickListener(MyRecyclerAdapter_Board.OnItemClickListener listener) {
+        this.mListener = listener;
+    }
 
     Handler handler = new Handler() {
         @Override
@@ -132,8 +147,8 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
 
     private class ItemViewHolder extends RecyclerView.ViewHolder {
         ImageView profile;
-        ImageButton likeButton, commentButton;
-        TextView idTextView, likeNum, commentNum, dateTextView;
+        ImageView likeButton, commentButton;
+        TextView idTextView, messageTextView, likeNum, commentNum, dateTextView;
         ViewPager viewPager;
         CircleIndicator circleIndicator;
 
@@ -144,11 +159,24 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
             likeButton = itemView.findViewById(R.id.likeImageView);
             commentButton = itemView.findViewById(R.id.commentImageView);
             idTextView = itemView.findViewById(R.id.memberIdTextView);
+            messageTextView = itemView.findViewById(R.id.messageTextView);
             likeNum = itemView.findViewById(R.id.likeNumTextView);
             commentNum = itemView.findViewById(R.id.commentNumTextView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
             viewPager = itemView.findViewById(R.id.homeImageViewPager);
             circleIndicator = itemView.findViewById(R.id.indicator);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition ();
+                    if (position!=RecyclerView.NO_POSITION){
+                        if (mListener!=null){
+                            mListener.onItemClick (v,position);
+                        }
+                    }
+                }
+            });
 
 
         }
@@ -181,50 +209,56 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
             // 아이디
             idTextView.setText(homeItem.getUserId());
 
+            // 내용
+            messageTextView.setText(homeItem.getMessage());
+
             // 좋아요 개수
             likeNum.setText(homeItem.getLikeNum());
 
             // 댓글 개수
             commentNum.setText(homeItem.getCommentNum());
 
-            // 좋아요 버튼
-            likeList = new ArrayList<>();
-            likeList = homeItem.getLikeList();
+            // 날짜
+            dateTextView.setText(formatTimeString(homeItem.getDate()));
 
-            UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
-                @Override
-                public Unit invoke(User user, Throwable throwable) {
-                    kakaoId = String.valueOf(user.getId());
-                    if(likeList.contains(kakaoId)){
-                        likeButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_favorite_24));
-                        isLike = true;
-                    }else{
-                        likeButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_favorite_border_24));
-                        isLike = false;
-                    }
-                    return null;
-                }
-            });
-
-            like = Integer.parseInt(homeItem.getLikeNum());
-
-            likeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(isLike){
-                        isLike = false;
-                        likeList.add(kakaoId);
-                        like = like + 1;
-                    }else{
-                        isLike = true;
-                        likeList.remove(kakaoId);
-                        like = like - 1;
-                    }
-                    db.collection("homePosts").document(homeItem.getThisFeedKakaoId())
-                            .update("likeNum", like, "likeList", likeList);
-                    likeNum.setText(String.valueOf(like));
-                }
-            });
+//            // 좋아요 버튼
+//            likeList = new ArrayList<>();
+//            likeList = homeItem.getLikeList();
+//
+//            UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
+//                @Override
+//                public Unit invoke(User user, Throwable throwable) {
+//                    kakaoId = String.valueOf(user.getId());
+//                    if(likeList.contains(kakaoId)){
+//                        likeButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_favorite_24));
+//                        isLike = true;
+//                    }else{
+//                        likeButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_favorite_border_24));
+//                        isLike = false;
+//                    }
+//                    return null;
+//                }
+//            });
+//
+//            like = Integer.parseInt(homeItem.getLikeNum());
+//
+//            likeButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if(isLike){
+//                        isLike = false;
+//                        likeList.add(kakaoId);
+//                        like = like + 1;
+//                    }else{
+//                        isLike = true;
+//                        likeList.remove(kakaoId);
+//                        like = like - 1;
+//                    }
+//                    db.collection("homePosts").document(homeItem.getThisFeedKakaoId())
+//                            .update("likeNum", like, "likeList", likeList);
+//                    likeNum.setText(String.valueOf(like));
+//                }
+//            });
 
             // 뷰페이저
             MyPagerAdapter_Home pagerAdapter = new MyPagerAdapter_Home(context);
@@ -274,6 +308,38 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
                 return view;
             }
         }
+    }
+
+    // 시간 단위 나누기
+    private String formatTimeString(String date){
+        SimpleDateFormat monthDateFormat = new SimpleDateFormat("MM월 dd일");
+        SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
+
+        long regTime = Long.parseLong(date);
+        Log.d(TAG, String.valueOf(regTime));
+
+        long curTime = System.currentTimeMillis();
+        long diffTime = (curTime - regTime) / 1000;
+        String msg = null;
+        if (diffTime < TimeMaximum.SEC) {
+            msg = "방금 전";
+        } else if ((diffTime /= TimeMaximum.SEC) < TimeMaximum.MIN) {
+            msg = diffTime + "분 전";
+        } else if ((diffTime /= TimeMaximum.MIN) < TimeMaximum.HOUR) {
+            msg = (diffTime) + "시간 전";
+        } else if ((diffTime /= TimeMaximum.HOUR) < TimeMaximum.DAY) {
+            if(diffTime <= 7){
+                msg = (diffTime) + "일 전";
+            }else{
+                msg = monthDateFormat.format(new Date(regTime));
+            }
+        } else if ((diffTime /= TimeMaximum.DAY) < TimeMaximum.MONTH) {
+//            msg = (diffTime) + "달 전";
+            msg = monthDateFormat.format(new Date(regTime));
+        } else {
+            msg = yearDateFormat.format(new Date(regTime));
+        }
+        return msg;
     }
 
 

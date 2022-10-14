@@ -24,7 +24,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.showmyroom.R;
+import com.example.showmyroom.activity.FeedPostActivity;
+import com.example.showmyroom.activity.PostActivity;
 import com.example.showmyroom.activity.WriteHomeActivity;
+import com.example.showmyroom.adapter.MyRecyclerAdapter_Board;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Home;
 import com.example.showmyroom.items.HomeItem;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,7 +60,12 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private View writeButton;
 
+    // 끝도달
+    private boolean is5Load = false;
+
+    // swipe
     private SwipeRefreshLayout swipeRefreshLayout;
+    private boolean isSwipe = false;
 
     // 게시물 불러오기
     private RecyclerView recyclerView;
@@ -69,8 +77,9 @@ public class HomeFragment extends Fragment {
     private int handlerMessage = 0;
 
     // 게시물 사진
+    private boolean isDownload = true, isFirstLoading;
     private ArrayList<Uri> postUriList;
-    private static final int SET_POSITION = -2, LOAD_URI = -1, ADAPT = 0, LOAD_NEXTPAGE = 1, RENEW = 2;
+    private static final int LOAD_FOLLOWLIST = -3, SET_POSITION = -2, LOAD_URI = -1, ADAPT = 0, LOAD_NEXTPAGE = 1, RENEW = 2;
     private int pos = 0;
     private int innerPos, count = 0;
     private StorageReference postRef;
@@ -88,91 +97,118 @@ public class HomeFragment extends Fragment {
 
     private DatabaseReference mDatabase;
 
-    Handler handler = new Handler(){
+    Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
-            switch (msg.what){
-                case SET_POSITION:
-                    pos++;
-                    count = 0;
-                    if(pos == homeItems.size()){
-                        Log.d(TAG, "FINISH");
-                        pos = 0;
-                        sendEmptyMessage(handlerMessage);
-                    }else{
-                        Log.d(TAG, "LOAD URI");
-                        sendEmptyMessage(LOAD_URI);
-                    }
+            switch (msg.what) {
+                case LOAD_FOLLOWLIST:
+                    followList = new ArrayList<>();
+                    mDatabase.child("following").child(kakaoId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                followList.add(String.valueOf(dataSnapshot.getValue()));
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
                     break;
+                case SET_POSITION:
+                    count = 0;
+                    if (pos == homeItems.size() - 1) {
+                        Log.d(TAG, "FINISH");
+                        // 끝 도달 -> 중간에 프로그래스바 삭제
+                        if (handlerMessage == LOAD_NEXTPAGE)
+                            complete_homeItems.remove(null);
+                        // 5개 단위 -> 끝에 프로그래스바 추가
+                        if (complete_homeItems.size() == page * 5)
+                            complete_homeItems.add(null);
+                        sendEmptyMessage(handlerMessage);
+                        break;
+                    } else {
+                        pos++;
+                        sendEmptyMessage(LOAD_URI);
+                        break;
+                    }
                 case LOAD_URI:
                     postUriList = new ArrayList<>();
-                    if (homeItems.size() != 0){
-                        postRef = storageRef.child("Post/" + homeItems.get(pos).getThisFeedKakaoId() + "/" + homeItems.get(pos).getDate() + "/");
-                        postRef.listAll()
-                                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                                    @Override
-                                    public void onSuccess(ListResult listResult) {
-                                        for (int i = 0; i < listResult.getItems().size(); i++) {
-                                            postUriList.add(Uri.parse(""));
-                                        }
-                                        Log.d(TAG, "size : " + postUriList.size());
-                                        for (StorageReference item : listResult.getItems()) {
-                                            // reference의 item(이미지) url 받아오기
-                                            Log.d(TAG, "item : " + item);
-                                            item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Uri> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Log.d(TAG, String.valueOf(listResult.getItems().size()) + "  " + postRef.getPath());
-                                                        innerPos = Integer.parseInt(item.toString().substring(item.toString().length() - 5, item.toString().length() - 4));
-                                                        Log.d(TAG, "innerPos : " + innerPos + ", size : " + postUriList.size());
-                                                        postUriList.set(innerPos, task.getResult());
-                                                        count++;
-                                                        if(count == listResult.getItems().size()){
-                                                            complete_homeItems.add(new HomeItem(
-                                                                    homeItems.get(pos).getThisFeedKakaoId(),
-                                                                    homeItems.get(pos).getUserId(),
-                                                                    homeItems.get(pos).getDate(),
-                                                                    homeItems.get(pos).getLikeNum(),
-                                                                    homeItems.get(pos).getCommentNum(),
-                                                                    homeItems.get(pos).getId(),
-                                                                    homeItems.get(pos).getLikeList(),
-                                                                    postUriList
-                                                            ));
-                                                            sendEmptyMessage(SET_POSITION);
-                                                        }
-
-                                                    } else {
-                                                        Log.d(TAG, "download fail");
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                    }else{
+                    if (homeItems.size() == 0) {
+                        // 게시물이 없을 시
+                        Toast.makeText(getActivity(), "불러올 게시물이 없습니다.", Toast.LENGTH_SHORT).show();
                         sendEmptyMessage(ADAPT);
+                        break;
+                    } else {
+                        if (!isDownload) break;
+                        else {
+                            Log.d(TAG, pos + " - homeItems : " + homeItems.get(pos));
+                            postRef = storageRef.child("Post/" + homeItems.get(pos).getThisFeedKakaoId() + "/" + homeItems.get(pos).getDate() + "/");
+                            postRef.listAll()
+                                    .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                                        @Override
+                                        public void onSuccess(ListResult listResult) {
+                                            for (int i = 0; i < listResult.getItems().size(); i++) {
+                                                postUriList.add(Uri.parse(""));
+                                            }
+                                            Log.d(TAG, "size : " + postUriList.size());
+                                            for (StorageReference item : listResult.getItems()) {
+                                                // reference의 item(이미지) url 받아오기
+                                                Log.d(TAG, "item : " + item);
+                                                item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Uri> task) {
+                                                        if (task.isSuccessful()) {
+                                                            // 한 게시물 내의 사진 간에 순서대로 정렬
+                                                            innerPos = Integer.parseInt(item.toString().substring(item.toString().length() - 5, item.toString().length() - 4));
+                                                            postUriList.set(innerPos, task.getResult());
+                                                            count++;
+                                                            // 한 게시물 내의 모든 사진 불러왔다면 리스트 추가
+                                                            if (count == listResult.getItems().size()) {
+                                                                complete_homeItems.add(new HomeItem(
+                                                                        homeItems.get(pos).getThisFeedKakaoId(),
+                                                                        homeItems.get(pos).getUserId(),
+                                                                        homeItems.get(pos).getMessage(),
+                                                                        homeItems.get(pos).getDate(),
+                                                                        homeItems.get(pos).getLikeNum(),
+                                                                        homeItems.get(pos).getCommentNum(),
+                                                                        homeItems.get(pos).getId(),
+                                                                        homeItems.get(pos).getLikeList(),
+                                                                        postUriList
+                                                                ));
+                                                                sendEmptyMessage(SET_POSITION);
+                                                            }
+
+                                                        } else {
+                                                            Log.d(TAG, "download fail");
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                        }
                     }
                     break;
                 case ADAPT:
                     // 프래그먼트 첫 호출
-                    Log.d(TAG, "complete homeItems size : "+complete_homeItems.size());
+                    Log.d(TAG, "complete homeItems size : " + complete_homeItems.size());
                     recyclerView.setAdapter(myRecyclerAdapterHome);
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
                     myRecyclerAdapterHome.setHomeList(complete_homeItems, page);
                     recyclerView.setLayoutManager(mLayoutManager);
-                    /* 업데이트가 끝났음을 알림 */
+
                     swipeRefreshLayout.setRefreshing(false);
+                    isSwipe = false;
+                    isFirstLoading = false;
                     break;
                 case LOAD_NEXTPAGE:
                     // 다음 페이지 로딩
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            myRecyclerAdapterHome.setHomeList(complete_homeItems, page);
-                        }
-                    }, 300);
+                    myRecyclerAdapterHome.setHomeList(complete_homeItems, page);
+                    is5Load = false;
+                    Log.d(TAG, "loaded complete homeItems size : " + complete_homeItems.size());
                     break;
                 case RENEW:
                     // 갱신
@@ -208,9 +244,22 @@ public class HomeFragment extends Fragment {
             @Override
             public Unit invoke(User user, Throwable throwable) {
                 kakaoId = String.valueOf(user.getId());
-
-                adaptData(ADAPT, page);
+                complete_homeItems = new ArrayList<>();
+                isFirstLoading = true;  // 처음 로딩때만 true 나머지땐 false
+                adaptData(ADAPT, page); // page = 1
                 return null;
+            }
+        });
+
+        // 게시물 선택
+        myRecyclerAdapterHome.setOnItemClickListener(new MyRecyclerAdapter_Board.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Intent intent = new Intent(getActivity(), FeedPostActivity.class);
+                intent.putExtra("postRef", "Post/" + complete_homeItems.get(position).getThisFeedKakaoId() + "/" + complete_homeItems.get(position).getDate() + "/");
+                intent.putExtra("postId", complete_homeItems.get(position).getId());
+                intent.putExtra("thisFeedKakaoId", complete_homeItems.get(position).getThisFeedKakaoId());
+                startActivity(intent);
             }
         });
 
@@ -218,9 +267,19 @@ public class HomeFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                /* swipe 시 진행할 동작 */
-                page = 1;
-                adaptData(ADAPT, page);
+                if (is5Load || isFirstLoading) {
+                    Toast.makeText(getActivity(), "잠시 후에 다시 시도해주세요", Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                } else {
+                    /* swipe 시 진행할 동작 */
+                    isSwipe = true;
+                    complete_homeItems = new ArrayList<>();
+                    pos = 0;    // index -> 0번부터
+                    page = 1;   // page -> 첫페이지로
+                    isDownload = true;  // 다운로드 가능하게
+                    adaptData(ADAPT, page);
+                }
+
             }
         });
 
@@ -228,17 +287,19 @@ public class HomeFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-//                LinearLayoutManager layoutManager = LinearLayoutManager.class.cast(recyclerView.getLayoutManager());
-//                int totalItemCount = layoutManager.getItemCount()-1;
-//                int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-//
-//                if(lastVisibleItemPosition == totalItemCount){
-//                    Log.d(TAG, "@@@@@@@@@@@@끝 도달@@@@@@@@@@@@");
-//                }
+
                 if (!recyclerView.canScrollVertically(1)) {
-                    Log.d(TAG, "@@@@@@@@@@@@끝 도달@@@@@@@@@@@@");
-                    page++;
-                    adaptData(LOAD_NEXTPAGE, page);
+                    if (!isSwipe && !is5Load) {
+                        // 게시물이 5개단위로 로드되어있을 때(끝에 프로그래스바 존재) -> 더 로딩(로드할 게 없으면 뒤에서 처리함)
+                        if (homeItems.size() % 5 == 0) {
+                            Log.d(TAG, "@@@@@@@@@@@@끝 도달@@@@@@@@@@@@");
+                            is5Load = true;
+                            pos++; // 더 로딩할 것이 있다는 가정하에(없으면 뒤에서 처리) 다음 index로 이동
+                            page++; // page = 2,3,4...
+                            Log.d(TAG, "homeItems size : " + homeItems.size() + ", page : " + page);
+                            adaptData(LOAD_NEXTPAGE, page);
+                        }
+                    }
                 }
             }
         });
@@ -265,19 +326,11 @@ public class HomeFragment extends Fragment {
         return v;
     }
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//
-//        adaptData(1, page);
-//
-//    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == Activity.RESULT_OK && requestCode == FROM_GALLARY){
+        if (resultCode == Activity.RESULT_OK && requestCode == FROM_GALLARY) {
             position = 0;
             cropList = new ArrayList<>();
             uriList = new ArrayList<>();
@@ -285,7 +338,7 @@ public class HomeFragment extends Fragment {
 //                Toast.makeText(getActivity(), "이미지를 선택하지 않았습니다.", Toast.LENGTH_SHORT).show();
             } else {
                 if (data.getClipData() == null) {
-                    Log.e(TAG, "single choice: "+String.valueOf(data.getData()));
+                    Log.e(TAG, "single choice: " + data.getData());
                     Uri imageUri = data.getData();
                     uriList.add(imageUri);
                     startCropActivity(uriList, position);
@@ -303,7 +356,7 @@ public class HomeFragment extends Fragment {
                         startActivityForResult(intent, FROM_GALLARY);
                     } else {
                         Log.e(TAG, "multiple choice");
-                        for(int i = 0; i < clipData.getItemCount(); i++){
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
                             Uri imageUri = clipData.getItemAt(i).getUri();
                             uriList.add(imageUri);
                         }
@@ -312,37 +365,46 @@ public class HomeFragment extends Fragment {
                 }
 
 
-
-
             }
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             Log.d(TAG, "come back!");
-            try{
+            try {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 handleCropResult(result.getUri());
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
-
     }
 
-    private void adaptData(int send_message, int page){
-        followList = new ArrayList<>();
-        mDatabase.child("following").child(kakaoId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    followList.add(String.valueOf(dataSnapshot.getValue()));
-                }
-            }
+    @Override
+    public void onResume() {
+        super.onResume();
 
+        UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public Unit invoke(User user, Throwable throwable) {
+                followList = new ArrayList<>();
+                mDatabase.child("following").child(String.valueOf(user.getId())).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            followList.add(String.valueOf(dataSnapshot.getValue()));
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+                return null;
             }
         });
+    }
 
+    private void adaptData(int send_message, int pg) {
+        handler.sendEmptyMessage(LOAD_FOLLOWLIST);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Query first = db.collection("homePosts").orderBy("date", Query.Direction.DESCENDING);
         first.get()
@@ -351,12 +413,13 @@ public class HomeFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             homeItems = new ArrayList<>();
-                            Log.d(TAG, homeItems.size() + " & followList : "+followList);
+                            Log.d(TAG, homeItems.size() + " & followList : " + followList);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (followList.contains(document.getData().get("kakaoId").toString())) {
                                     homeItems.add(new HomeItem(
                                             document.getData().get("kakaoId").toString(),
                                             document.getData().get("id").toString(),
+                                            document.getData().get("message").toString(),
                                             document.getData().get("date").toString(),
                                             document.getData().get("likeNum").toString(),
                                             document.getData().get("commentNum").toString(),
@@ -364,22 +427,38 @@ public class HomeFragment extends Fragment {
                                             (ArrayList<String>) document.getData().get("likeList")
                                     ));
                                 }
-                                if (homeItems.size() == page * 10) {
-                                    homeItems.add(null);
+                                // 5개 단위씩 자르되 page 고려해서
+                                if (homeItems.size() == pg * 5) {
                                     break;
                                 }
                             }
 
-                            if(homeItems.size() == 0){
+                            if (homeItems.size() == 0) {
                                 Log.d(TAG, "no result");
                             }
-                            if(followList.size() == 0){
+                            if (followList.size() == 0) {
                                 Log.d(TAG, "no following");
+                                if (is5Load) {
+                                    is5Load = false;
+                                    pos--;
+                                    page--;
+                                }
+                                return;
                             }
 
-                            complete_homeItems = new ArrayList<>();
-                            handlerMessage = send_message;
-                            handler.sendEmptyMessage(LOAD_URI);
+                            // 불러온 게시물이 5개 단위인데 이미 다 로드되어 있다면? -> 더이상 로딩x
+                            if (homeItems.size() != pg * 5
+                                    && homeItems.size() % 5 == 0
+                                    && homeItems.size() != 0) {
+                                Log.d(TAG, "is Download false");
+                                isDownload = false;
+                                complete_homeItems.remove(null);
+                                handler.sendEmptyMessage(LOAD_NEXTPAGE);
+                            } else {
+                                Log.d(TAG, "여기여기여기 : " + homeItems.size());
+                                handlerMessage = send_message;
+                                handler.sendEmptyMessage(LOAD_URI);
+                            }
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -390,34 +469,30 @@ public class HomeFragment extends Fragment {
         });
 
 
-
-
-
-
     }
 
     private void startCropActivity(@NonNull ArrayList<Uri> uriList, int position) {
         CropImage.activity(uriList.get(position)).setGuidelines(CropImageView.Guidelines.ON)
-                .setAspectRatio(1,1)
+                .setAspectRatio(1, 1)
                 .setCropShape(CropImageView.CropShape.RECTANGLE)
                 .start(getContext(), HomeFragment.this);
     }
 
     private void handleCropResult(@NonNull Uri uri) {
         if (uri != null) {
-            try{
+            try {
                 cropList.add(uri);
                 Log.d(TAG, "cropList size : " + cropList.size());
                 position++;
-                if(cropList.size() == uriList.size()){
+                if (cropList.size() == uriList.size()) {
                     Intent intent = new Intent(getActivity(), WriteHomeActivity.class);
                     intent.putExtra("uriList", cropList);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
-                }else{
+                } else {
                     startCropActivity(uriList, position);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, "File select error", e);
             }
         }
