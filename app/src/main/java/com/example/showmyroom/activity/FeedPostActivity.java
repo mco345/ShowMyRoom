@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.showmyroom.FeedPostUpdateActivity;
 import com.example.showmyroom.R;
 import com.example.showmyroom.adapter.MyPagerAdapter_Post;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Comment;
@@ -69,6 +71,15 @@ public class FeedPostActivity extends AppCompatActivity {
     private int innerPos, count = 0;
 
     private DatabaseReference mDatabase;
+
+    // 초기화면 progressbar
+    private LinearLayout progressBarLayout;
+
+    // 수정
+    private ImageButton updateButton;
+
+    /// 프사
+    private Uri profileImage;
 
     // 이미지 뷰페이저
     private ViewPager pager;
@@ -157,6 +168,8 @@ public class FeedPostActivity extends AppCompatActivity {
 
                     circleIndicator = findViewById(R.id.indicator);
                     circleIndicator.setViewPager(pager);
+
+                    progressBarLayout.setVisibility(View.GONE);
                     break;
             }
         }
@@ -177,7 +190,8 @@ public class FeedPostActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-
+        progressBarLayout = findViewById(R.id.progressBarLayout);
+        progressBarLayout.setVisibility(View.VISIBLE);
 
         // 게시물 게시자 아이디
         feedPostIdTextView = findViewById(R.id.feedPostIdTextView);
@@ -190,13 +204,14 @@ public class FeedPostActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Uri uri) {
                 if (getApplicationContext() != null) {
+                    profileImage = uri;
                     Glide.with(getApplicationContext()).load(uri).apply(RequestOptions.bitmapTransform(new RoundedCorners(30))).into(feedPostProfileImageView);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-
+                feedPostProfileImageView.setImageResource(R.drawable.ic_baseline_person_24);
             }
         });
 
@@ -261,8 +276,12 @@ public class FeedPostActivity extends AppCompatActivity {
         UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
             @Override
             public Unit invoke(User user, Throwable throwable) {
-
                 comment_kakaoId = String.valueOf(user.getId());
+                // update 가능여부
+                if(comment_kakaoId.equals(thisFeedKakaoId)){
+                    updateButton.setVisibility(View.VISIBLE);
+                }
+
                 DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.child("users").child(comment_kakaoId).child("id").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                     @Override
@@ -323,6 +342,21 @@ public class FeedPostActivity extends AppCompatActivity {
                 intent.putExtra("postRef", postRefText);
                 intent.putExtra("thisFeedKakaoId", thisFeedKakaoId);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+
+        updateButton = findViewById(R.id.updateButton);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "update - "+profileImage);
+                Intent intent = new Intent(getApplicationContext(), FeedPostUpdateActivity.class);
+                intent.putExtra("postId", postId);
+                intent.putExtra("postRef", postRefText);
+                intent.putExtra("thisFeedKakaoId", thisFeedKakaoId);
+                intent.putExtra("thisPostUriList", postUriList);
+                intent.putExtra("content", content);
                 startActivity(intent);
             }
         });

@@ -7,6 +7,18 @@
     android:orientation="vertical"
     tools:context=".activity.FeedPostActivity">
 
+    <LinearLayout
+        android:id="@+id/progressBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -35,6 +47,19 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textSize="15sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+
+                <ImageButton
+                    android:id="@+id/updateButton"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_baseline_edit_24"
+                    android:backgroundTint="@color/white"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <androidx.viewpager.widget.ViewPager

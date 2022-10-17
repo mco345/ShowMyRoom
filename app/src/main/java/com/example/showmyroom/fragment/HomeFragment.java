@@ -21,6 +21,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.showmyroom.R;
@@ -60,12 +63,20 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private View writeButton;
 
+    // no result
+    private boolean isNoResult = false;
+
     // 끝도달
     private boolean is5Load = false;
 
     // swipe
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean isSwipe = false;
+
+    // progressBar
+    private LinearLayout progressBarLayout;
+    private ProgressBar progressBar;
+    private TextView progressBarTextView;
 
     // 게시물 불러오기
     private RecyclerView recyclerView;
@@ -77,8 +88,10 @@ public class HomeFragment extends Fragment {
     private int handlerMessage = 0;
 
     // 게시물 사진
-    private boolean isDownload = true, isFirstLoading;
+    private boolean isDownload = true,
+            isFirstLoading = true;   // 처음 로딩때만 true 나머지땐 false
     private ArrayList<Uri> postUriList;
+    private ArrayList<ArrayList<Uri>> complete_postUriList = new ArrayList<>();
     private static final int LOAD_FOLLOWLIST = -3, SET_POSITION = -2, LOAD_URI = -1, ADAPT = 0, LOAD_NEXTPAGE = 1, RENEW = 2;
     private int pos = 0;
     private int innerPos, count = 0;
@@ -92,10 +105,12 @@ public class HomeFragment extends Fragment {
     private static final int FROM_GALLARY = 0;
 
     // crop
-    private int position = 0;
+    private int cropPosition = 0;
     private ArrayList<Uri> cropList = new ArrayList<>();    // crop 후 이미지 리스트
 
     private DatabaseReference mDatabase;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     Handler handler = new Handler() {
         @Override
@@ -109,16 +124,18 @@ public class HomeFragment extends Fragment {
                             for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                                 followList.add(String.valueOf(dataSnapshot.getValue()));
                             }
+
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-
+                            Log.d(TAG, "cancled");
                         }
                     });
                     break;
                 case SET_POSITION:
                     count = 0;
+                    complete_postUriList.add(postUriList);  // 로드한 uri들 저장
                     if (pos == homeItems.size() - 1) {
                         Log.d(TAG, "FINISH");
                         // 끝 도달 -> 중간에 프로그래스바 삭제
@@ -203,6 +220,8 @@ public class HomeFragment extends Fragment {
                     swipeRefreshLayout.setRefreshing(false);
                     isSwipe = false;
                     isFirstLoading = false;
+                    progressBarLayout.setVisibility(View.GONE);
+                    writeButton.setVisibility(View.VISIBLE);
                     break;
                 case LOAD_NEXTPAGE:
                     // 다음 페이지 로딩
@@ -238,6 +257,12 @@ public class HomeFragment extends Fragment {
 
         recyclerView = v.findViewById(R.id.homeRecyclerView);
         myRecyclerAdapterHome = new MyRecyclerAdapter_Home();
+        progressBarLayout = v.findViewById(R.id.progressBarLayout);
+        progressBarLayout.setVisibility(View.VISIBLE);
+        progressBar = v.findViewById(R.id.progressBar);
+        progressBarTextView = v.findViewById(R.id.progressBarText);
+        writeButton = v.findViewById(R.id.writeFloatingButton);
+        writeButton.setVisibility(View.GONE);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
@@ -245,7 +270,6 @@ public class HomeFragment extends Fragment {
             public Unit invoke(User user, Throwable throwable) {
                 kakaoId = String.valueOf(user.getId());
                 complete_homeItems = new ArrayList<>();
-                isFirstLoading = true;  // 처음 로딩때만 true 나머지땐 false
                 adaptData(ADAPT, page); // page = 1
                 return null;
             }
@@ -274,6 +298,7 @@ public class HomeFragment extends Fragment {
                     /* swipe 시 진행할 동작 */
                     isSwipe = true;
                     complete_homeItems = new ArrayList<>();
+                    complete_postUriList = new ArrayList<>();
                     pos = 0;    // index -> 0번부터
                     page = 1;   // page -> 첫페이지로
                     isDownload = true;  // 다운로드 가능하게
@@ -310,7 +335,6 @@ public class HomeFragment extends Fragment {
         storageRef = storage.getReference();
 
         // 피드 게시물 작성
-        writeButton = v.findViewById(R.id.writeFloatingButton);
         writeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -331,7 +355,7 @@ public class HomeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK && requestCode == FROM_GALLARY) {
-            position = 0;
+            cropPosition = 0;
             cropList = new ArrayList<>();
             uriList = new ArrayList<>();
             if (data == null) {
@@ -341,7 +365,7 @@ public class HomeFragment extends Fragment {
                     Log.e(TAG, "single choice: " + data.getData());
                     Uri imageUri = data.getData();
                     uriList.add(imageUri);
-                    startCropActivity(uriList, position);
+                    startCropActivity(uriList, cropPosition);
                 } else {
                     ClipData clipData = data.getClipData();
                     Log.e("clipData", String.valueOf(clipData.getItemCount()));
@@ -360,7 +384,7 @@ public class HomeFragment extends Fragment {
                             Uri imageUri = clipData.getItemAt(i).getUri();
                             uriList.add(imageUri);
                         }
-                        startCropActivity(uriList, position);
+                        startCropActivity(uriList, cropPosition);
                     }
                 }
 
@@ -380,32 +404,46 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "resume");
 
-        UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
-            @Override
-            public Unit invoke(User user, Throwable throwable) {
-                followList = new ArrayList<>();
-                mDatabase.child("following").child(String.valueOf(user.getId())).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            followList.add(String.valueOf(dataSnapshot.getValue()));
+        if(!isFirstLoading && !isNoResult){
+            Query first = db.collection("homePosts").orderBy("date", Query.Direction.DESCENDING);
+            first.get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if(task.isSuccessful()){
+                                int count = 0;
+                                for(QueryDocumentSnapshot document : task.getResult()){
+                                    complete_homeItems.set(count, new HomeItem(
+                                            homeItems.get(count).getThisFeedKakaoId(),
+                                            homeItems.get(count).getUserId(),
+                                            homeItems.get(count).getMessage(),
+                                            homeItems.get(count).getDate(),
+                                            document.getData().get("likeNum").toString(),
+                                            document.getData().get("commentNum").toString(),
+                                            homeItems.get(count).getId(),
+                                            (ArrayList<String>) document.getData().get("likeList"),
+                                            complete_postUriList.get(count)
+                                    ));
+                                    count++;
+                                    if(count == homeItems.size()) break;
+                                }
+                                handler.sendEmptyMessage(RENEW);
+                            }
                         }
-                    }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-                return null;
-            }
-        });
+                }
+            });
+        }
     }
 
     private void adaptData(int send_message, int pg) {
         handler.sendEmptyMessage(LOAD_FOLLOWLIST);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         Query first = db.collection("homePosts").orderBy("date", Query.Direction.DESCENDING);
         first.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -435,16 +473,26 @@ public class HomeFragment extends Fragment {
 
                             if (homeItems.size() == 0) {
                                 Log.d(TAG, "no result");
-                            }
-                            if (followList.size() == 0) {
-                                Log.d(TAG, "no following");
-                                if (is5Load) {
-                                    is5Load = false;
-                                    pos--;
-                                    page--;
+                                progressBar.setVisibility(View.GONE);
+                                progressBarTextView.setVisibility(View.VISIBLE);
+                                progressBarTextView.setText("게시물이 없습니다.");
+                                if (followList.size() == 0) {
+                                    Log.d(TAG, "no following");
+                                    progressBarTextView.setText("팔로우하는 회원이 없습니다.");
+                                    if (is5Load) {
+                                        is5Load = false;
+                                        pos--;
+                                        page--;
+                                    }
                                 }
+                                isFirstLoading = false;
+                                isSwipe = false;
+                                isNoResult = true;
+                                swipeRefreshLayout.setRefreshing(false);
+                                writeButton.setVisibility(View.VISIBLE);
                                 return;
                             }
+
 
                             // 불러온 게시물이 5개 단위인데 이미 다 로드되어 있다면? -> 더이상 로딩x
                             if (homeItems.size() != pg * 5
@@ -483,14 +531,14 @@ public class HomeFragment extends Fragment {
             try {
                 cropList.add(uri);
                 Log.d(TAG, "cropList size : " + cropList.size());
-                position++;
+                cropPosition++;
                 if (cropList.size() == uriList.size()) {
                     Intent intent = new Intent(getActivity(), WriteHomeActivity.class);
                     intent.putExtra("uriList", cropList);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
-                    startCropActivity(uriList, position);
+                    startCropActivity(uriList, cropPosition);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "File select error", e);
@@ -498,14 +546,4 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
-    // 프로그래스바 다이얼로그
-    private void showProgressDialog(String message) {
-//        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-        ProgressDialog dialog = new ProgressDialog(getActivity());
-        dialog.setCancelable(false);    // 화면 밖 터치해도 dialog 취소되지 않게
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setMessage(message);
-        dialog.show();
-    }
 }
