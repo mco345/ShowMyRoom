@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.WriteDealActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/dealImageViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_margin="20dp" />
+
+            <me.relex.circleindicator.CircleIndicator
+                android:id="@+id/indicator"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                app:ci_drawable="@drawable/ic_baseline_circle_24"
+                app:ci_height="7dp"
+                app:ci_margin="4dp"
+                app:ci_width="7dp" />
+
+            <EditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/square"
+                android:gravity="center_vertical"
+                android:hint="상품명"
+                android:imeOptions="actionSearch"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="20sp"
+                android:tint="@null"
+                android:layout_margin="10dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:id="@+id/freeShipping"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <CheckBox
+                        android:id="@+id/freeShippingCheck"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        />
+                    <TextView
+                        android:id="@+id/freeShippingTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="무료배송"
+                        android:textSize="20sp"
+                        android:layout_gravity="center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/newProduct"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="20dp">
+                    <CheckBox
+                        android:id="@+id/newProductCheck"
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        />
+                    <TextView
+                        android:id="@+id/newProductTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="새상품"
+                        android:textSize="20sp"
+                        android:layout_gravity="center"/>
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/square"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="카테고리"
+                android:textColor="#9E9E9E"
+                android:textSize="20sp"
+                android:layout_margin="10dp"/>
+
+            <EditText
+                android:id="@+id/tagEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/square"
+                android:gravity="center_vertical"
+                android:hint="태그"
+                android:imeOptions="actionSearch"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="20sp"
+                android:tint="@null"
+                android:layout_margin="10dp"/>
+
+            <EditText
+                android:id="@+id/contentEditText"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@drawable/square"
+                android:gravity="top"
+                android:hint="상품 설명을 입력하세요(10자 이상)"
+                android:imeOptions="actionSearch"
+                android:padding="10dp"
+                android:textSize="20sp"
+                android:tint="@null"
+                android:layout_margin="10dp"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/uploadDealButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="등록" />
+
+</LinearLayout>

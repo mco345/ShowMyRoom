@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -101,6 +102,7 @@ public class PostActivity extends AppCompatActivity {
 
 
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
 
         db = FirebaseFirestore.getInstance();
 

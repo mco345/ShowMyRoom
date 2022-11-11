@@ -70,4 +70,16 @@ dependencies {
 
     // Circle Indicator
     implementation 'me.relex:circleindicator:2.1.4'
+
+    // PreferenceManager
+    implementation 'androidx.preference:preference:1.0.0'
+
+    // Circle ImageView
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    // Flex Box
+    implementation "com.google.android:flexbox:2.0.1"
+
+    // meow bottom navigation
+    implementation 'com.etebarian:meow-bottom-navigation:1.0.0'
 }

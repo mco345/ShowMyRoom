@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/popup_to10"
+        android:title="10평 미만"/>
+    <item
+        android:id="@+id/popup_10to20"
+        android:title="10평대"/>
+    <item
+        android:id="@+id/popup_20to30"
+        android:title="20평대"/>
+    <item
+        android:id="@+id/popup_30to40"
+        android:title="30평대"/>
+    <item
+        android:id="@+id/popup_40to"
+        android:title="40평 이상"/>
+
+</menu>

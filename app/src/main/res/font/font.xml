@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:font="@font/a1"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a2"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a3"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a4"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a5"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a6"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a7"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a8"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a9"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a10"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a11"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a12"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a13"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a14"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+    <font
+        android:font="@font/a15"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+    <font
+        android:font="@font/a16"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+    <font
+        android:font="@font/a17"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+    <font
+        android:font="@font/a18"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+    <font
+        android:font="@font/a19"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+    <font
+        android:font="@font/a20"
+        android:fontStyle="normal"
+        android:fontWeight="400" />
+
+
+</font-family>

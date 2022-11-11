@@ -1,5 +1,7 @@
 package com.example.showmyroom.adapter;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -43,6 +46,9 @@ import kotlin.jvm.functions.Function2;
 
 public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAdapter_Comment.ViewHolder> {
     private static final String TAG = "commentAdapter";
+
+    private Context context;
+
     private ArrayList<CommentItem> commentList;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef, pathRef;
@@ -64,6 +70,8 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
     @NonNull
     @Override
     public MyRecyclerAdapter_Comment.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        context = parent.getContext();
+
         if(parent.getContext().toString().contains("FeedPostActivity")){
             mode = 0;
         }else if(parent.getContext().toString().contains("PostActivity")){
@@ -159,6 +167,8 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
         }
 
         public void onBind(CommentItem item) {
+            Activity activity = (Activity) context;
+
             UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
                 @Override
                 public Unit invoke(User user, Throwable throwable) {
@@ -175,6 +185,7 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                         pathRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
+                                if(((Activity) context).isFinishing()) return;
                                 Glide.with(commentImage.getContext()).load(uri).apply(RequestOptions.bitmapTransform(new RoundedCorners(14))).into(commentImage);
                             }
                         }).addOnFailureListener(new OnFailureListener() {

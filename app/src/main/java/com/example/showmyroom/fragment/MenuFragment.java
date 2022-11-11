@@ -159,10 +159,6 @@ public class MenuFragment extends Fragment {
                                 boardNum = 1;
                                 boardTextView.setText("비밀게시판");
                                 break;
-                            case R.id.dealBoard:
-                                boardNum = 2;
-                                boardTextView.setText("거래게시판");
-                                break;
                             default:
                                 break;
                         }

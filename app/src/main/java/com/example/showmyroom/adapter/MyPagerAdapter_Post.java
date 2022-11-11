@@ -52,6 +52,7 @@ public class MyPagerAdapter_Post extends PagerAdapter {
         View view = inflater.inflate(R.layout.viewpager_postimage, container, false);
 
         ImageView imageView = view.findViewById(R.id.postImage);
+
         Glide.with(context).load(uriList.get(position)).apply(RequestOptions.bitmapTransform(new RoundedCorners(30))).into(imageView);
 
         container.addView(view);

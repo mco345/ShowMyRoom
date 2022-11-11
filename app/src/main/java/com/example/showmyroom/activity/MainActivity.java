@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
+import com.example.showmyroom.Pref;
 import com.example.showmyroom.fragment.MenuFragment;
 import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
@@ -22,8 +24,15 @@ import com.example.showmyroom.fragment.SearchFragment;
 import com.example.showmyroom.fragment.SettingFragment;
 import com.example.showmyroom.fragment.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kakao.sdk.user.UserApiClient;
 import com.kakao.sdk.user.model.User;
+
+import java.util.ArrayList;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
@@ -54,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigationView);
+
+
         bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener);
 
         // 카카오 아이디
@@ -61,6 +72,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Unit invoke(User user, Throwable throwable) {
                 kakaoId = String.valueOf(user.getId());
+                PreferenceManager.setString(getApplicationContext(), "kakaoId", kakaoId);   // 카카오아이디 내장db 저장
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                mDatabase.child("users").child(kakaoId).child("id").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        PreferenceManager.setString(getApplicationContext(), "userId", String.valueOf(snapshot.getValue()));    // 유저아이디 내장db 저장
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+                ArrayList<String> followList = new ArrayList<>();
+                mDatabase.child("following").child(kakaoId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            followList.add(String.valueOf(dataSnapshot.getValue()));
+                            if(followList.size() == snapshot.getChildrenCount()){
+                                Pref pref = new Pref();
+                                pref.setStringArrayPref(getApplicationContext(), "myFollowList", followList);
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
                 return null;
             }
         });
@@ -71,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             case 0:
                 fragmentManager.beginTransaction().add(R.id.home_ly, searchFragment, "1").hide(searchFragment).commit();
                 fragmentManager.beginTransaction().add(R.id.home_ly, menuFragment, "2").hide(menuFragment).commit();
-                fragmentManager.beginTransaction().add(R.id.home_ly, settingFragment, "3").hide(settingFragment).commit();
+                fragmentManager.beginTransaction().add(R.id.home_ly, settingFragment, "4").hide(settingFragment).commit();
                 fragmentManager.beginTransaction().add(R.id.home_ly, homeFragment, "0").commit();
                 bottomNavigationView.setSelectedItemId(R.id.tab_home);
                 break;
@@ -148,9 +190,8 @@ public class MainActivity extends AppCompatActivity {
             PreferenceManager.setInt(getApplicationContext(), "BackToMain", 0);
             finish();
             toast.cancel();
-            moveTaskToBack(true); // 태스크를 백그라운드로 이동
-            finishAndRemoveTask();
-            android.os.Process.killProcess(android.os.Process.myPid());
+            finishAffinity();
+            System.runFinalization();
             System.exit(0);
         }
     }

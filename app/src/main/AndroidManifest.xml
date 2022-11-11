@@ -22,9 +22,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShowMyRoom"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FeedPostUpdateActivity"></activity>
+        <activity android:name=".activity.TagActivity"></activity>
+        <activity android:name=".activity.WriteDealActivity" />
+        <activity android:name=".activity.DealPostActivity" />
+        <activity android:name=".fragment.NoticeActivity" />
+        <activity android:name=".activity.FeedPostUpdateActivity" />
         <activity android:name=".activity.FeedPostActivity" />
-        <activity android:name=".activity.WriteHomeActivity" />
+        <activity android:name=".activity.WriteHomeActivity"/>
         <activity android:name=".activity.FeedActivity" />
         <activity android:name=".activity.PostEditActivity" />
         <activity android:name=".activity.PostActivity" />

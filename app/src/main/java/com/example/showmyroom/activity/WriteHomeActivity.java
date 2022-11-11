@@ -1,10 +1,13 @@
 package com.example.showmyroom.activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -17,21 +20,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
 import com.example.showmyroom.adapter.MyPagerAdapter_Post;
-import com.example.showmyroom.items.BoardItem;
 import com.example.showmyroom.items.CommentItem;
 import com.example.showmyroom.items.PostItem;
 import com.google.android.gms.common.util.IOUtils;
@@ -45,7 +45,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.kakao.sdk.user.UserApiClient;
@@ -58,7 +57,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -68,6 +66,15 @@ import me.relex.circleindicator.CircleIndicator;
 
 public class WriteHomeActivity extends AppCompatActivity {
     private static final String TAG = "WriteHomeActivity";
+
+    // whatSelected
+    private String whatSelected;
+
+    // roomLayout
+    private LinearLayout roomLayout;
+    private Button pyButton, dwellButton, styleButton;
+    private String py = "null", dwell = "null", style = "null", keyword = "";
+    private Button keywordButton;
 
     // storage
     private FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -80,6 +87,9 @@ public class WriteHomeActivity extends AppCompatActivity {
     private int boardNum;
     private Date date;
     private DatabaseReference mDatabase;
+
+    // keyword
+    private ArrayList<String> keywordsList = new ArrayList<>();
 
     // ui
     private EditText contentEditText;
@@ -104,27 +114,114 @@ public class WriteHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_write_home);
 
         uriList = (ArrayList<Uri>) getIntent().getSerializableExtra("uriList");
+        whatSelected = getIntent().getStringExtra("whatSelected");
+        Log.d(TAG, "whatSelected : " + whatSelected);
 
+        // 키보드 가림 방지
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
+        // 파이어베이스
         mDatabase = FirebaseDatabase.getInstance().getReference();
         storageRef = storage.getReference();
 
+        // roomLayout UI - 내 방 볼래 경우에만 visible
+        roomLayout = findViewById(R.id.roomButtonLayout);
+        pyButton = findViewById(R.id.pyButton);
+        dwellButton = findViewById(R.id.dwellButton);
+        styleButton = findViewById(R.id.styleButton);
+        keywordButton = findViewById(R.id.keywordButton);
+        if (whatSelected.equals("daily")) {
+            roomLayout.setVisibility(View.GONE);
+            keywordButton.setVisibility(View.GONE);
+        }
+        // 평수
+        pyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final PopupMenu popup_py = new PopupMenu(getApplicationContext(), v);
+                getMenuInflater().inflate(R.menu.popup_py, popup_py.getMenu());
+                popup_py.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        py = item.getTitle().toString();
+                        pyButton.setText(py);
+                        pyButton.setBackgroundResource(R.drawable.room_button_selected);
+                        pyButton.setTextColor((ContextCompat.getColor(getApplicationContext(), R.color.light_coral)));
+
+                        return false;
+                    }
+                });
+                popup_py.show();
+
+            }
+        });
+        // 주거형태
+        dwellButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final PopupMenu popup_dwell = new PopupMenu(getApplicationContext(), v);
+                getMenuInflater().inflate(R.menu.popup_dwell, popup_dwell.getMenu());
+                popup_dwell.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        dwell = item.getTitle().toString();
+                        dwellButton.setText(dwell);
+                        dwellButton.setBackgroundResource(R.drawable.room_button_selected);
+                        dwellButton.setTextColor((ContextCompat.getColor(getApplicationContext(), R.color.light_coral)));
+                        return false;
+                    }
+                });
+                popup_dwell.show();
+            }
+        });
+        // 스타일
+        styleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final PopupMenu popup_style = new PopupMenu(getApplicationContext(), v);
+                getMenuInflater().inflate(R.menu.popup_style, popup_style.getMenu());
+                popup_style.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        style = item.getTitle().toString();
+                        styleButton.setText(style);
+                        styleButton.setBackgroundResource(R.drawable.room_button_selected);
+                        styleButton.setTextColor((ContextCompat.getColor(getApplicationContext(), R.color.light_coral)));
+                        return false;
+                    }
+                });
+                popup_style.show();
+            }
+        });
+        // 키워드 버튼
+        keywordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), TagActivity.class);
+                intent.putExtra("keywordsList", keywordsList);
+                startActivityForResult(intent, 0);
+            }
+        });
+
+
+        // 뷰페이저
         pager = findViewById(R.id.postImageViewPager);
         pagerAdapter = new MyPagerAdapter_Post(WriteHomeActivity.this);
         pagerAdapter.setPostImage(uriList);
         pager.setAdapter(pagerAdapter);
-
         circleIndicator = findViewById(R.id.indicator);
         circleIndicator.setViewPager(pager);
 
         contentEditText = findViewById(R.id.contentEditText);
         uploadPostButton = findViewById(R.id.uploadPostButton);
+
+        // 업로드
         uploadPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 String content = contentEditText.getText().toString();
-                if(content.length() > 0){
+                if (content.length() > 0) {
                     showProgressDialog("게시물을 등록하는 중입니다.");
                     long now = System.currentTimeMillis();
                     date = new Date(now);
@@ -140,10 +237,10 @@ public class WriteHomeActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                                     id = String.valueOf(task.getResult().getValue());
-                                    String pathName = "Post/" + kakaoId + "/" + postDate+ "/";
+                                    String pathName = "Post/" + kakaoId + "/" + postDate + "/";
                                     String thumbNailPathName = "Post/" + kakaoId + "/thumbNail/";
 
-                                    for(int i = 0; i<uriList.size(); i++){
+                                    for (int i = 0; i < uriList.size(); i++) {
                                         InputStream in = null;
                                         try {
                                             in = getContentResolver().openInputStream(uriList.get(i));
@@ -167,8 +264,8 @@ public class WriteHomeActivity extends AppCompatActivity {
                                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                         rotateBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                                         byte[] rotateByte = baos.toByteArray();
-                                        if(i == 0){
-                                            thumbNailPathRef = storageRef.child(thumbNailPathName+"/"+postDate+".png");
+                                        if (i == 0) {
+                                            thumbNailPathRef = storageRef.child(thumbNailPathName + "/" + postDate + ".png");
                                             UploadTask uploadTask = thumbNailPathRef.putBytes(rotateByte);
                                             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                                 @Override
@@ -183,14 +280,14 @@ public class WriteHomeActivity extends AppCompatActivity {
                                             });
                                         }
 
-                                        pathRef = storageRef.child(pathName + "/"+i+".png");
+                                        pathRef = storageRef.child(pathName + "/" + i + ".png");
                                         UploadTask uploadTask = pathRef.putBytes(rotateByte);
                                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                if(forNum == uriList.size()){
+                                                if (forNum == uriList.size()) {
                                                     uploader(kakaoId, id, content, postDate);
-                                                }else{
+                                                } else {
                                                     forNum++;
                                                 }
                                             }
@@ -209,12 +306,9 @@ public class WriteHomeActivity extends AppCompatActivity {
                         }
                     });
 
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(), "내용을 작성해주세요", Toast.LENGTH_SHORT).show();
                 }
-
-
-
 
 
             }
@@ -269,15 +363,20 @@ public class WriteHomeActivity extends AppCompatActivity {
 
     private void uploader(String kakaoId, String id, String content, String postDate) {
         PostItem postItem = new PostItem(
+                whatSelected,
                 kakaoId,
                 id,
                 content,
                 postDate,
+                keywordsList,
+                py,
+                dwell,
+                style,
                 new ArrayList<CommentItem>(),
                 "0",
                 "0",
                 new ArrayList<String>()
-                );
+        );
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("homePosts").add(postItem)
@@ -338,9 +437,20 @@ public class WriteHomeActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // 태그 추가 후
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if(resultCode == Activity.RESULT_OK && requestCode == 0){
+            keyword = data.getExtras().getString("keyword");
+            keywordsList =  (ArrayList<String>) data.getExtras().getSerializable("keywordsList");
+            Log.d(TAG, "keywordsList"+ keywordsList);
+            keywordButton.setText(keyword);
+        }
+    }
 
     // 선택한 사진의 절대경로 구하는 것
     public static String getFilePathFromURI(Context context, Uri contentUri) {

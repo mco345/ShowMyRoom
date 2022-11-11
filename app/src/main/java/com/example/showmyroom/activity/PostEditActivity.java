@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,7 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class PostEditActivity extends AppCompatActivity {
     private static final String TAG = "PostEditActivity";
 
-    private View deleteButton, editButton, cancelButton;
+    private View deleteButton, editButton;
     private EditText titleEditText, messageEditText;
     private int boardNum;
 
@@ -41,6 +42,10 @@ public class PostEditActivity extends AppCompatActivity {
         Intent postIntent = getIntent();
         id = postIntent.getStringExtra("thisPostId");
         boardNum = postIntent.getIntExtra("boardNum",0);
+
+        // 키보드 가림 방지
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         switch (boardNum){
             case 0:
                 board = "posts";
@@ -57,7 +62,7 @@ public class PostEditActivity extends AppCompatActivity {
         }
         Log.d(TAG, "board is "+board);
 
-        cancelButton = findViewById(R.id.cancelButton);
+
         deleteButton = findViewById(R.id.deleteButton);
         editButton = findViewById(R.id.editButton);
         titleEditText = findViewById(R.id.titleEditText);

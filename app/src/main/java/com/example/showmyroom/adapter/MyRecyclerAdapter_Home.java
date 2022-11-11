@@ -1,21 +1,19 @@
 package com.example.showmyroom.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -27,26 +25,17 @@ import com.example.showmyroom.R;
 import com.example.showmyroom.TimeMaximum;
 import com.example.showmyroom.activity.FeedActivity;
 import com.example.showmyroom.activity.FeedPostActivity;
-import com.example.showmyroom.items.BoardItem;
 import com.example.showmyroom.items.HomeItem;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
-import com.kakao.sdk.user.UserApiClient;
-import com.kakao.sdk.user.model.User;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function2;
 import me.relex.circleindicator.CircleIndicator;
 
 public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -61,7 +50,7 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
     private String kakaoId, thisFeedKakaoId, date;
 
     private boolean isLike = false;
-    private int like;
+    private int position;
 
     // 파이어스토어
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -73,38 +62,27 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
     private Context context = null;
 
     //아이템 클릭 리스너 인터페이스
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onItemClick(View v, int position); //뷰와 포지션값
     }
+
     //리스너 객체 참조 변수
     private MyRecyclerAdapter_Board.OnItemClickListener mListener = null;
+
     //리스너 객체 참조를 어댑터에 전달 메서드
     public void setOnItemClickListener(MyRecyclerAdapter_Board.OnItemClickListener listener) {
         this.mListener = listener;
     }
-
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            switch (msg.what) {
-                case 0:
-
-
-                    break;
-
-            }
-        }
-    };
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
 
-        if(viewType == VIEW_TYPE_ITEM){
+        if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recyclerview_home, parent, false);
             return new ItemViewHolder(view);
-        }else{
+        } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recyclerview_board_loading, parent, false);
             return new MyRecyclerAdapter_Home.LoadingViewHolder(view);
         }
@@ -117,10 +95,10 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if(holder instanceof MyRecyclerAdapter_Home.ItemViewHolder){
+        if (holder instanceof MyRecyclerAdapter_Home.ItemViewHolder) {
             ((MyRecyclerAdapter_Home.ItemViewHolder) holder).onBind(mHomeList.get(position));
-            ((ItemViewHolder) holder).viewPager.setId(position+1);
-        }else if(holder instanceof MyRecyclerAdapter_Home.LoadingViewHolder){
+            ((ItemViewHolder) holder).viewPager.setId(position + 1);
+        } else if (holder instanceof MyRecyclerAdapter_Home.LoadingViewHolder) {
 
         }
     }
@@ -136,8 +114,9 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
 //        notifyDataSetChanged();
     }
 
-    private class LoadingViewHolder extends RecyclerView.ViewHolder{
+    private class LoadingViewHolder extends RecyclerView.ViewHolder {
         private ProgressBar progressBar;
+
         public LoadingViewHolder(View itemView) {
             super(itemView);
 
@@ -148,7 +127,7 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
     private class ItemViewHolder extends RecyclerView.ViewHolder {
         ImageView profile;
         ImageView likeButton, commentButton;
-        TextView idTextView, messageTextView, likeNum, commentNum, dateTextView;
+        TextView whatTypeTextView, idTextView, messageTextView, likeNum, commentNum, dateTextView, roomTextView;
         ViewPager viewPager;
         CircleIndicator circleIndicator;
 
@@ -158,6 +137,7 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
             profile = itemView.findViewById(R.id.memberImageView);
             likeButton = itemView.findViewById(R.id.likeImageView);
             commentButton = itemView.findViewById(R.id.commentImageView);
+            whatTypeTextView = itemView.findViewById(R.id.whatTypeTextView);
             idTextView = itemView.findViewById(R.id.memberIdTextView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
             likeNum = itemView.findViewById(R.id.likeNumTextView);
@@ -165,14 +145,16 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
             dateTextView = itemView.findViewById(R.id.dateTextView);
             viewPager = itemView.findViewById(R.id.homeImageViewPager);
             circleIndicator = itemView.findViewById(R.id.indicator);
+            roomTextView = itemView.findViewById(R.id.roomTextView);
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int position = getAdapterPosition ();
-                    if (position!=RecyclerView.NO_POSITION){
-                        if (mListener!=null){
-                            mListener.onItemClick (v,position);
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        if (mListener != null) {
+                            mListener.onItemClick(v, position);
                         }
                     }
                 }
@@ -182,6 +164,18 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
         }
 
         public void onBind(HomeItem homeItem) {
+            // 내방볼래 or 내일상볼래
+            switch (homeItem.getWhatSelected()){
+                case "room":
+                    whatTypeTextView.setText("내방볼래?");
+                    whatTypeTextView.setTextColor(ContextCompat.getColor(context, R.color.more_light_coral));
+                    break;
+                case "daily":
+                    whatTypeTextView.setText("내일상볼래?");
+                    whatTypeTextView.setTextColor(ContextCompat.getColor(context, R.color.more_light_blue));
+                    break;
+            }
+
             // 프사
             profile.setImageResource(0);
             storageRef = storage.getReference();
@@ -189,6 +183,7 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
             profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
+                    if(((Activity) context).isFinishing()) return;
                     Glide.with(profile.getContext()).load(uri).apply(RequestOptions.bitmapTransform(new RoundedCorners(14))).into(profile);
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -262,17 +257,51 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
 
             // 뷰페이저
             MyPagerAdapter_Home pagerAdapter = new MyPagerAdapter_Home(context);
+            pagerAdapter.setHomeItem(homeItem);
             pagerAdapter.setPostImage(homeItem.getPostUriList());
             viewPager.setAdapter(pagerAdapter);
             circleIndicator.setViewPager(viewPager);
+
+
+            // 방 정보
+            if (homeItem.getWhatSelected().equals("daily")) {
+                roomTextView.setVisibility(View.GONE);
+            } else {
+                String roomInfo = "";
+                String py = "", dwell = "", style = "";
+                py = homeItem.getPy();
+                dwell = homeItem.getDwell();
+                style = homeItem.getStyle();
+                if(py.equals("null")) py = "";
+                if(dwell.equals("null")) dwell = "";
+                if(style.equals("null")) style = "";
+
+                String between = " | ";
+                if(!py.equals("")) py = py+between;
+                if(!dwell.equals("")) dwell = dwell + between;
+                if (py.equals("") && dwell.equals("") && style.equals("")) {
+                    roomTextView.setVisibility(View.GONE);
+                } else {
+                    roomInfo = py + dwell + style;
+                    if (roomInfo.substring(roomInfo.length() - 1).equals(" ")) {
+                        roomInfo = roomInfo.substring(0, roomInfo.length() - 3);
+                    }
+                    roomTextView.setText(roomInfo);
+                }
+            }
         }
 
         public class MyPagerAdapter_Home extends PagerAdapter {
             private ArrayList<Uri> uriList = new ArrayList<>();
+            private HomeItem homeItem;
             private Context context;
 
             public MyPagerAdapter_Home(Context context) {
                 this.context = context;
+            }
+
+            public void setHomeItem(HomeItem homeItem) {
+                this.homeItem = homeItem;
             }
 
             @Override
@@ -282,12 +311,12 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
 
             @Override
             public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-                return view == (View)object;
+                return view == (View) object;
             }
 
             @Override
             public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-                container.removeView((View)object);
+                container.removeView((View) object);
             }
 
             public void setPostImage(ArrayList<Uri> postImagesUri) {
@@ -297,11 +326,22 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
             @NonNull
             @Override
             public Object instantiateItem(@NonNull ViewGroup container, int position) {
-                LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View view = inflater.inflate(R.layout.viewpager_postimage, container, false);
 
                 ImageView imageView = view.findViewById(R.id.postImage);
                 Glide.with(context).load(uriList.get(position)).apply(RequestOptions.bitmapTransform(new RoundedCorners(30))).into(imageView);
+
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, FeedPostActivity.class);
+                        intent.putExtra("postRef", "Post/" + homeItem.getThisFeedKakaoId() + "/" + homeItem.getDate() + "/");
+                        intent.putExtra("postId", homeItem.getId());
+                        intent.putExtra("thisFeedKakaoId", homeItem.getThisFeedKakaoId());
+                        context.startActivity(intent);
+                    }
+                });
 
                 container.addView(view);
 
@@ -311,7 +351,7 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     // 시간 단위 나누기
-    private String formatTimeString(String date){
+    private String formatTimeString(String date) {
         SimpleDateFormat monthDateFormat = new SimpleDateFormat("MM월 dd일");
         SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
 
@@ -328,9 +368,9 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
         } else if ((diffTime /= TimeMaximum.MIN) < TimeMaximum.HOUR) {
             msg = (diffTime) + "시간 전";
         } else if ((diffTime /= TimeMaximum.HOUR) < TimeMaximum.DAY) {
-            if(diffTime <= 7){
+            if (diffTime <= 7) {
                 msg = (diffTime) + "일 전";
-            }else{
+            } else {
                 msg = monthDateFormat.format(new Date(regTime));
             }
         } else if ((diffTime /= TimeMaximum.DAY) < TimeMaximum.MONTH) {

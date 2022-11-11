@@ -19,19 +19,15 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/cancelButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:backgroundTint="@color/white"
-                android:src="@drawable/ic_baseline_cancel_24"/>
-
             <TextView
+                android:layout_marginStart="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:text="수정하기"
                 android:layout_gravity="center"
-                android:textSize="30sp" />
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
         </LinearLayout>
 
         <View
@@ -61,7 +57,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:hint="제목을 입력하세요" />
+            android:hint="제목을 입력하세요"
+            android:textSize="15sp"
+            android:fontFamily="@font/a18"
+            android:tint="@null"
+            android:padding="10dp"
+            android:background="@drawable/square_home_pink"/>
 
         <EditText
             android:id="@+id/messageEditText"
@@ -70,7 +71,12 @@
             android:layout_marginTop="20dp"
             android:gravity="top"
             android:hint="내용을 입력하세요"
-            android:scrollbars = "vertical"/>
+            android:textSize="15sp"
+            android:scrollbars = "vertical"
+            android:tint="@null"
+            android:padding="10dp"
+            android:background="@drawable/square_home_pink"
+            android:fontFamily="@font/a18"/>
 
     </LinearLayout>
 
@@ -79,6 +85,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="수정하기"/>
+        android:text="수정하기"
+        android:fontFamily="@font/a4"/>
 
 </LinearLayout>

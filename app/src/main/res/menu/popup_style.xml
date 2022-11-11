@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/popup_modern"
+        android:title="모던"/>
+    <item
+        android:id="@+id/popup_europe"
+        android:title="북유럽"/>
+    <item
+        android:id="@+id/popup_vintage"
+        android:title="빈티지"/>
+    <item
+        android:id="@+id/popup_natural"
+        android:title="내추럴" />
+    <item
+        android:id="@+id/popup_provence"
+        android:title="프로방스 &amp; 로맨틱"/>
+    <item
+        android:id="@+id/popup_classic"
+        android:title="클래식 &amp; 앤틱" />
+    <item
+        android:id="@+id/popup_asia"
+        android:title="한국 &amp; 아시아"/>
+    <item
+        android:id="@+id/popup_unique"
+        android:title="유니크"/>
+    <item
+        android:id="@+id/popup_style_etc"
+        android:title="기타 스타일"/>
+
+</menu>

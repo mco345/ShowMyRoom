@@ -4,151 +4,216 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.FeedActivity"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="10dp"
+    tools:context=".activity.FeedActivity">
 
-    <TextView
-        android:id="@+id/idTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="id"
-        android:textSize="30dp"
-        android:paddingHorizontal="15dp"
-        />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="10dp"
-        >
-        <ImageView
-            android:id="@+id/profileImageView"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/ic_baseline_person_24"
-            android:background="@drawable/square"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/postNumberTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="25sp"
-                    android:layout_weight="1"
-                    android:gravity="center"/>
-                <TextView
-                    android:id="@+id/followerNumberTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="25sp"
-                    android:layout_weight="1"
-                    android:gravity="center"/>
-                <TextView
-                    android:id="@+id/followingNumberTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="25sp"
-                    android:layout_weight="1"
-                    android:gravity="center"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="게시물"
-                    android:textSize="15sp"
-                    android:layout_weight="1"
-                    android:gravity="center"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="팔로워"
-                    android:textSize="15sp"
-                    android:layout_weight="1"
-                    android:gravity="center"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="팔로잉"
-                    android:textSize="15sp"
-                    android:layout_weight="1"
-                    android:gravity="center"/>
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
 
-    <TextView
-        android:id="@+id/nameTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="name"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:paddingHorizontal="20dp"/>
-
-    <TextView
-        android:id="@+id/introTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="introduction"
-        android:maxLines="3"
-        android:paddingHorizontal="20dp"/>
-
-    <LinearLayout
-        android:id="@+id/notMeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="10dp">
-        <Button
-            android:id="@+id/followButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="팔로우"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="10dp"/>
-        <Button
-            android:id="@+id/messageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:textColor="#404040"
-            android:backgroundTint="@color/white"
-            android:text="메시지 보내기"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="10dp"/>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/profileEditButton"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:text="프로필 편집"
-        android:textColor="#404040"
-        android:backgroundTint="@color/white"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginVertical="10dp"/>
-
-    <GridView
-        android:id="@+id/postGridView"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="3"/>
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/idTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="15dp"
+                android:text="id"
+                android:textSize="30dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="10dp">
+
+                <ImageView
+                    android:id="@+id/profileImageView"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:background="@drawable/square"
+                    android:src="@drawable/ic_baseline_person_24" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/postNumberTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="0"
+                            android:textSize="25sp" />
+
+                        <TextView
+                            android:id="@+id/followerNumberTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="0"
+                            android:textSize="25sp" />
+
+                        <TextView
+                            android:id="@+id/followingNumberTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="0"
+                            android:textSize="25sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="게시물"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="팔로워"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="팔로잉"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/nameTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:text="name"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/introTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="3"
+                android:paddingHorizontal="20dp"
+                android:text="introduction" />
+
+            <LinearLayout
+                android:id="@+id/notMeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="10dp">
+
+                <Button
+                    android:id="@+id/followButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_weight="1"
+                    android:text="팔로우" />
+
+                <Button
+                    android:id="@+id/messageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="#F1F1F1"
+                    android:text="메시지 보내기"
+                    android:textColor="#404040" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/profileEditButton"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="10dp"
+                android:backgroundTint="#F1F1F1"
+                android:text="프로필 편집"
+                android:textColor="#404040" />
+
+            <LinearLayout
+                android:id="@+id/noResultLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    >
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:src="@drawable/ic_baseline_photo_camera_24" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:gravity="center"
+                        android:text="게시물 없음"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/progressBarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center" />
+            </LinearLayout>
+
+            <GridView
+                android:id="@+id/postGridView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:numColumns="3" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 
 </LinearLayout>

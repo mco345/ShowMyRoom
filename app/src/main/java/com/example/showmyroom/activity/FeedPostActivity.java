@@ -3,11 +3,11 @@ package com.example.showmyroom.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -28,7 +29,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.showmyroom.FeedPostUpdateActivity;
+import com.example.showmyroom.Notification;
 import com.example.showmyroom.R;
 import com.example.showmyroom.adapter.MyPagerAdapter_Post;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Comment;
@@ -37,6 +38,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -65,12 +68,20 @@ public class FeedPostActivity extends AppCompatActivity {
     private ImageView feedPostProfileImageView;
     private View likeButton, nolikeButton, commentButton;
     private EditText commentEditText;
+    private ChipGroup chipGroup;
 
     private String postId, thisFeedKakaoId, userId, postRefText;
     private ArrayList<Uri> postUriList;
     private int innerPos, count = 0;
 
     private DatabaseReference mDatabase;
+
+    // Notification
+    private Notification notification = new Notification();
+
+    // whatType
+    private String whatType;
+    private TextView whatTypeTextView;
 
     // 초기화면 progressbar
     private LinearLayout progressBarLayout;
@@ -89,6 +100,9 @@ public class FeedPostActivity extends AppCompatActivity {
     // 파이어스토어
     private FirebaseFirestore db;
 
+    // 키워드
+    private ArrayList<String> keywordsList;
+
     // 좋아요
     private int likeNum;
     private boolean isLike = false;
@@ -106,7 +120,6 @@ public class FeedPostActivity extends AppCompatActivity {
     private RecyclerView commentRecyclerView;
     private MyRecyclerAdapter_Comment myRecyclerAdapter;
     String comment_kakaoId, comment_userId;
-    private String id, kakaoId, thisPostKakaoId, title, message, date;
     private String board; // 어떤 게시판인지
     private CommentItem item, reply;
     private ArrayList<CommentItem> commentItems;
@@ -147,7 +160,7 @@ public class FeedPostActivity extends AppCompatActivity {
                                                     Log.d(TAG, "innerPos : " + innerPos + ", size : " + postUriList.size());
                                                     postUriList.set(innerPos, task.getResult());
                                                     count++;
-                                                    if(count == listResult.getItems().size())
+                                                    if (count == listResult.getItems().size())
                                                         sendEmptyMessage(1);
                                                 } else {
                                                     Log.d(TAG, "download fail");
@@ -214,6 +227,14 @@ public class FeedPostActivity extends AppCompatActivity {
                 feedPostProfileImageView.setImageResource(R.drawable.ic_baseline_person_24);
             }
         });
+        feedPostProfileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
+                intent.putExtra("kakaoId", thisFeedKakaoId);
+                startActivity(intent);
+            }
+        });
 
         handler.sendEmptyMessage(0);
 
@@ -243,7 +264,9 @@ public class FeedPostActivity extends AppCompatActivity {
                         db.collection("homePosts").document(postId)
                                 .update("likeNum", likeNum, "likeList", likeList);
                         likeNumTextView.setText(String.valueOf(likeNum));
-                        likeButton.setVisibility(View.GONE); nolikeButton.setVisibility(View.VISIBLE);
+                        likeButton.setVisibility(View.GONE);
+                        nolikeButton.setVisibility(View.VISIBLE);
+                        notification.notice_like("피드", postId, thisFeedKakaoId, comment_kakaoId);
                         return null;
                     }
                 });
@@ -263,12 +286,19 @@ public class FeedPostActivity extends AppCompatActivity {
                         db.collection("homePosts").document(postId)
                                 .update("likeNum", likeNum, "likeList", likeList);
                         likeNumTextView.setText(String.valueOf(likeNum));
-                        likeButton.setVisibility(View.VISIBLE); nolikeButton.setVisibility(View.GONE);
+                        likeButton.setVisibility(View.VISIBLE);
+                        nolikeButton.setVisibility(View.GONE);
+                        notification.notice_noLike(postId, thisFeedKakaoId, comment_kakaoId);
                         return null;
                     }
                 });
             }
         });
+
+        // 키워드
+        chipGroup = findViewById(R.id.feedPostChipGroup);
+
+
 
         commentRecyclerView.setLayoutManager(new LinearLayoutManager(FeedPostActivity.this));
 
@@ -278,7 +308,7 @@ public class FeedPostActivity extends AppCompatActivity {
             public Unit invoke(User user, Throwable throwable) {
                 comment_kakaoId = String.valueOf(user.getId());
                 // update 가능여부
-                if(comment_kakaoId.equals(thisFeedKakaoId)){
+                if (comment_kakaoId.equals(thisFeedKakaoId)) {
                     updateButton.setVisibility(View.VISIBLE);
                 }
 
@@ -308,7 +338,7 @@ public class FeedPostActivity extends AppCompatActivity {
 
                 // 답글 등록
                 if (isReply) {
-                    reply = new CommentItem(thisFeedKakaoId, comment_kakaoId, comment_userId, comment, comment_date, true,  false, realKakaoId);
+                    reply = new CommentItem(thisFeedKakaoId, comment_kakaoId, comment_userId, comment, comment_date, true, false, realKakaoId);
                     ArrayList<CommentItem> replyList;
                     Map commentItem = new HashMap();
                     commentItem = (Map) commentItems.get(realPosition);
@@ -331,10 +361,16 @@ public class FeedPostActivity extends AppCompatActivity {
                 // 일반 댓글 등록
                 else {
                     item = new CommentItem(thisFeedKakaoId, comment_kakaoId, comment_userId, comment, comment_date, false, false, new ArrayList<CommentItem>(), false);
-                    Log.d(TAG, "item : "+item.getComment());
+                    Log.d(TAG, "item : " + item.getComment());
                     commentItems.add(item);
                 }
                 AddComment();
+
+                // 알림 데이터베이스 추가
+                if (isReply)
+                    notification.notice_comment("피드", postId, thisFeedKakaoId, comment_kakaoId, realKakaoId, comment, "reply", comment_date);
+                else
+                    notification.notice_comment("피드", postId, thisFeedKakaoId, comment_kakaoId, "", comment, "comment", comment_date);
 
                 imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
                 Intent intent = new Intent(getApplicationContext(), FeedPostActivity.class);
@@ -350,24 +386,24 @@ public class FeedPostActivity extends AppCompatActivity {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "update - "+profileImage);
+                Log.d(TAG, "update - " + profileImage);
                 Intent intent = new Intent(getApplicationContext(), FeedPostUpdateActivity.class);
                 intent.putExtra("postId", postId);
                 intent.putExtra("postRef", postRefText);
                 intent.putExtra("thisFeedKakaoId", thisFeedKakaoId);
                 intent.putExtra("thisPostUriList", postUriList);
                 intent.putExtra("content", content);
+                intent.putExtra("keywordsList", keywordsList);
                 startActivity(intent);
             }
         });
-
 
 
     }
 
     private void AddComment() {
         db.collection("homePosts").document(postId)
-                .update("comment", commentItems, "commentNum", comments.size()+1);
+                .update("comment", commentItems, "commentNum", comments.size() + 1);
         Toast.makeText(getApplicationContext(), "댓글을 등록하였습니다.", Toast.LENGTH_SHORT).show();
     }
 
@@ -377,29 +413,62 @@ public class FeedPostActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             content = document.getData().get("message").toString();
                             userId = document.getData().get("id").toString();
                             contentTextView.setText(content);
                             feedPostIdTextView.setText(userId);
 
+                            // whatType
+                            whatType = document.getData().get("whatSelected").toString();
+                            Log.d(TAG, "whatType - "+whatType);
+                            // 내방볼래 or 내일상볼래
+                            whatTypeTextView = findViewById(R.id.whatTypeTextView);
+                            switch (whatType){
+                                case "room":
+                                    whatTypeTextView.setText("내방볼래?");
+                                    whatTypeTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.more_light_coral));
+                                    break;
+                                case "daily":
+                                    whatTypeTextView.setText("내일상볼래?");
+                                    whatTypeTextView.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.more_light_blue));
+                                    break;
+                            }
+
+                            // 키워드 관련
+                            keywordsList = new ArrayList<>();
+                            keywordsList = (ArrayList<String>) document.getData().get("keyword");
+                            try {
+                                LayoutInflater inflater = LayoutInflater.from(FeedPostActivity.this);
+                                Log.d(TAG, "keywordsList - "+keywordsList);
+                                if (keywordsList.size() == 0) chipGroup.setVisibility(View.GONE);
+                                for(int i =0; i<keywordsList.size(); i++){
+                                    Log.d(TAG, "keywordsList size - "+keywordsList.size());
+                                    Log.d(TAG, i + "-"+keywordsList.get(i));
+                                    Chip newChip = (Chip) inflater.inflate(R.layout.view_chip_feedpost, chipGroup, false);
+                                    newChip.setText(keywordsList.get(i));
+                                    chipGroup.addView(newChip);
+                                }
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
 
                             // 좋아요 관련
                             likeList = new ArrayList<>();
                             likeList = (ArrayList<String>) document.getData().get("likeList");
                             likeNum = Integer.parseInt(document.getData().get("likeNum").toString());
                             likeNumTextView.setText(String.valueOf(likeNum));
-                            Log.d(TAG, "likeList : "+likeList+", kakaoId : "+comment_kakaoId);
-                            if(likeList.contains(comment_kakaoId)){
+                            Log.d(TAG, "likeList : " + likeList + ", kakaoId : " + comment_kakaoId);
+                            if (likeList.contains(comment_kakaoId)) {
                                 Log.d(TAG, "isLike");
                                 isLike = true;
                                 nolikeButton.setVisibility(View.VISIBLE);
-                            }else{
+                            } else {
                                 isLike = false;
                                 likeButton.setVisibility(View.VISIBLE);
                             }
-
 
 
                             // 댓글 관련
@@ -482,9 +551,9 @@ public class FeedPostActivity extends AppCompatActivity {
                                         if (commentItem.get("userId").equals("(삭제)")) {
                                             replyTextView.setText(String.valueOf("삭제된 댓글에 답글 남기는 중"));
                                         } else {
-                                            if(commentItem.get("kakaoId").equals(commentItem.get("thisPostKakaoId"))){
+                                            if (commentItem.get("kakaoId").equals(commentItem.get("thisPostKakaoId"))) {
                                                 replyTextView.setText(String.valueOf(commentItem.get("userId")) + "(작성자)에게 답글 남기는 중");
-                                            }else{
+                                            } else {
                                                 replyTextView.setText(String.valueOf(commentItem.get("userId")) + "에게 답글 남기는 중");
                                             }
 
@@ -506,6 +575,7 @@ public class FeedPostActivity extends AppCompatActivity {
                                         });
                                     }
                                 }
+
                                 @Override
                                 public void onDeleteClick(View v, int position) {
                                     realPosition = 0;
@@ -533,7 +603,10 @@ public class FeedPostActivity extends AppCompatActivity {
                                                 Map commentItem = new HashMap();
                                                 commentItem = (Map) commentItems.get(realPosition);
                                                 replyList = (ArrayList<CommentItem>) commentItem.get("replyList");
+                                                Map replyItem = new HashMap();
+                                                replyItem = (Map) replyList.get(replyPosition);
                                                 Log.d(TAG, "before delete : " + replyList.size() + "replyPosition : " + replyPosition);
+                                                notification.notice_delete_comment(postId, replyItem.get("realKakaoId").toString(), comment_kakaoId, replyItem.get("date").toString());
                                                 replyList.remove(0 + replyPosition);
                                                 Log.d(TAG, "After delete : " + replyList.size());
                                                 commentItems.set(realPosition, new CommentItem(
@@ -548,11 +621,14 @@ public class FeedPostActivity extends AppCompatActivity {
                                                         (Boolean) commentItem.get("secret")
                                                 ));
 
+
                                             }
                                             // 삭제할 댓글이 답글이 아니라면
                                             else {
                                                 Map commentItem = new HashMap();
                                                 commentItem = (Map) commentItems.get(realPosition);
+                                                Log.d(TAG, "comment_date - " + commentItem.get("date").toString());
+                                                notification.notice_delete_comment(postId, commentItem.get("thisPostKakaoId").toString(), comment_kakaoId, commentItem.get("date").toString());
                                                 commentItems.set(realPosition, new CommentItem(
                                                         String.valueOf(commentItem.get("thisPostKakaoId")),
                                                         "",
@@ -565,6 +641,8 @@ public class FeedPostActivity extends AppCompatActivity {
                                                         (Boolean) commentItem.get("secret")
                                                 ));
                                             }
+
+
                                             db.collection("homePosts").document(postId)
                                                     .update("comment", commentItems);
                                             Intent intent = new Intent(getApplicationContext(), FeedPostActivity.class);

@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.showmyroom.Notification;
+import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
 import com.example.showmyroom.adapter.MyGridAdapter_Feed;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -73,6 +75,12 @@ public class FeedActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
 
+    // 게시물 없음
+    private LinearLayout noResultLayout;
+
+    // 프로그래스바
+    private LinearLayout progressBarLayout;
+
     // 그리드뷰
     private GridView postGridView;
     private MyGridAdapter_Feed gridAdapter;
@@ -86,6 +94,9 @@ public class FeedActivity extends AppCompatActivity {
     // 파이어 스토리지
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef, profileRef, postRef;
+
+    // Notification
+    private Notification notification = new Notification();
 
     Handler handler = new Handler() {
         @Override
@@ -142,7 +153,12 @@ public class FeedActivity extends AppCompatActivity {
                                             });
                                         }
                                     }
-                                });
+                                }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "download fail");
+                            }
+                        });
                     }
 
                     break;
@@ -156,6 +172,7 @@ public class FeedActivity extends AppCompatActivity {
                     Log.d(TAG, "Complete postUriList : "+ postUriList);
                     gridAdapter.setUriList(postUriList);
                     postGridView.setAdapter(gridAdapter);
+                    progressBarLayout.setVisibility(View.GONE);
                     sendEmptyMessage(2);
                     break;
                 case 2:
@@ -186,6 +203,9 @@ public class FeedActivity extends AppCompatActivity {
         thisFeedKakaoId = feedIntent.getStringExtra("kakaoId");
 
         Log.d(TAG, thisFeedKakaoId);
+
+        noResultLayout = findViewById(R.id.noResultLayout);
+        progressBarLayout = findViewById(R.id.progressBarLayout);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -226,9 +246,13 @@ public class FeedActivity extends AppCompatActivity {
                     Map<String, Object> followingMap = new HashMap<>();
                     followingMap.put(followingKey, thisFeedKakaoId);
                     mDatabase.child("following").child(kakaoId).updateChildren(followingMap);
+
+                    notification.notice_follow(thisFeedKakaoId, kakaoId);
                 }else{
                     mDatabase.child("following").child(kakaoId).child(thisFeedFollowingKey).removeValue();
                     mDatabase.child("followers").child(thisFeedKakaoId).child(thisFeedFollowerKey).removeValue();
+
+                    notification.notice_unFollow(thisFeedKakaoId, kakaoId);
                 }
                 Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
                 intent.putExtra("kakaoId", thisFeedKakaoId);
@@ -360,7 +384,13 @@ public class FeedActivity extends AppCompatActivity {
 
                             postNumberTextView = findViewById(R.id.postNumberTextView);
                             postNumberTextView.setText(String.valueOf(date.size()));
-                            handler.sendEmptyMessage(0);
+                            if(date.size() != 0){
+                                handler.sendEmptyMessage(0);
+                            }else{
+                                progressBarLayout.setVisibility(View.GONE);
+                                noResultLayout.setVisibility(View.VISIBLE);
+                            }
+
                         }
                     }
                 })

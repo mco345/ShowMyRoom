@@ -11,13 +11,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="130dp"
             android:layout_margin="10dp"
-            android:background="@drawable/square"
+            android:background="@drawable/square_home_pink"
             android:orientation="horizontal">
             <LinearLayout
                 android:id="@+id/progressBarLayout"
@@ -67,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@drawable/square"
+            android:background="@drawable/square_home_pink"
             android:orientation="vertical"
             android:padding="15dp">
 
@@ -118,7 +119,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@drawable/square"
+            android:background="@drawable/square_home_pink"
             android:orientation="vertical"
             android:padding="15dp">
 
@@ -143,7 +144,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@drawable/square"
+            android:background="@drawable/square_home_pink"
             android:orientation="vertical"
             android:padding="15dp">
 
@@ -190,7 +191,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@drawable/square"
+            android:background="@drawable/square_home_pink"
             android:orientation="vertical"
             android:padding="15dp">
 

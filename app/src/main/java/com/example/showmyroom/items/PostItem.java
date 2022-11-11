@@ -3,24 +3,74 @@ package com.example.showmyroom.items;
 import java.util.ArrayList;
 
 public class PostItem {
+    String whatSelected;
     String kakaoId;
     String id;
     String message;
     String date;
+    ArrayList<String> keyword;
+    String py;
+    String dwell;
+    String style;
     ArrayList<CommentItem> comment;
     String commentNum;
     String likeNum;
     ArrayList<String> likeList;
 
-    public PostItem(String kakaoId, String id, String message, String date, ArrayList<CommentItem> comment, String commentNum, String likeNum, ArrayList<String> likeList) {
+    public PostItem(String whatSelected, String kakaoId, String id, String message, String date, ArrayList<String> keyword, String py, String dwell, String style, ArrayList<CommentItem> comment, String commentNum, String likeNum, ArrayList<String> likeList) {
+        this.whatSelected = whatSelected;
         this.kakaoId = kakaoId;
         this.id = id;
         this.message = message;
         this.date = date;
+        this.keyword = keyword;
+        this.py = py;
+        this.dwell = dwell;
+        this.style = style;
         this.comment = comment;
         this.commentNum = commentNum;
         this.likeNum = likeNum;
         this.likeList = likeList;
+    }
+
+    public String getWhatSelected() {
+        return whatSelected;
+    }
+
+    public void setWhatSelected(String whatSelected) {
+        this.whatSelected = whatSelected;
+    }
+
+    public ArrayList<String> getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(ArrayList<String> keyword) {
+        this.keyword = keyword;
+    }
+
+    public String getPy() {
+        return py;
+    }
+
+    public void setPy(String py) {
+        this.py = py;
+    }
+
+    public String getDwell() {
+        return dwell;
+    }
+
+    public void setDwell(String dwell) {
+        this.dwell = dwell;
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
     }
 
     public ArrayList<String> getLikeList() {

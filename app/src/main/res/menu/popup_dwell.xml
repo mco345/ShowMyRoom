@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/popup_oneRoom"
+        android:title="원룸 &amp; 오피스텔"/>
+    <item
+        android:id="@+id/popup_apartment"
+        android:title="아파트"/>
+    <item
+        android:id="@+id/popup_villa"
+        android:title="빌라 &amp; 연립"/>
+    <item
+        android:id="@+id/popup_dwell_etc"
+        android:title="기타 주거형태"/>
+
+</menu>
