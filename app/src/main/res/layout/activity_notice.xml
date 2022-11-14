@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.NoticeActivity"
+    tools:context=".activity.NoticeActivity"
     android:orientation="vertical">
 
     <TextView
@@ -17,18 +17,18 @@
         android:textColor="@color/black"/>
 
     <LinearLayout
-        android:id="@+id/noNoticeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:orientation="vertical">
         <LinearLayout
+            android:id="@+id/noNoticeLayout"
             android:layout_width="150dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_gravity="center"
             android:gravity="center"
-            android:paddingBottom="20dp">
+            android:paddingBottom="20dp"
+            android:visibility="gone">
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="100dp"

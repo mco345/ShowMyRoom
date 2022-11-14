@@ -52,14 +52,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:fontFamily="@font/a9"/>
 
                 <TextView
                     android:id="@+id/textName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:fontFamily="@font/a18"/>
 
             </LinearLayout>
         </LinearLayout>
@@ -78,7 +80,7 @@
                 android:layout_marginBottom="20dp"
                 android:text="계정"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:fontFamily="@font/a4"/>
 
 
             <TextView
@@ -87,7 +89,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="내 프로필"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
             <TextView
                 android:id="@+id/profileImageTextView"
@@ -95,7 +98,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="프로필 사진 변경"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
             <TextView
                 android:id="@+id/logoutTextView"
@@ -103,7 +107,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="로그아웃"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
             <TextView
                 android:id="@+id/withDrawTextView"
@@ -111,7 +116,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="회원 탈퇴"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
         </LinearLayout>
 
@@ -129,14 +135,15 @@
                 android:layout_marginBottom="20dp"
                 android:text="앱"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:fontFamily="@font/a4" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="알림 설정"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
         </LinearLayout>
 
@@ -154,35 +161,39 @@
                 android:layout_marginBottom="20dp"
                 android:text="서비스 정보"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:fontFamily="@font/a4" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="공지사항"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="FAQ"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="서비스 약관"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="앱 정보"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
         </LinearLayout>
 
@@ -201,21 +212,23 @@
                 android:layout_marginBottom="20dp"
                 android:text="고객센터"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:fontFamily="@font/a4" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="이메일 상담"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:text="문제 신고"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:fontFamily="@font/a18"/>
 
         </LinearLayout>
 

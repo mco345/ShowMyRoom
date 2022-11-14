@@ -117,9 +117,6 @@ public class WriteHomeActivity extends AppCompatActivity {
         whatSelected = getIntent().getStringExtra("whatSelected");
         Log.d(TAG, "whatSelected : " + whatSelected);
 
-        // 키보드 가림 방지
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
         // 파이어베이스
         mDatabase = FirebaseDatabase.getInstance().getReference();
         storageRef = storage.getReference();

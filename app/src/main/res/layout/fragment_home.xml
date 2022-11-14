@@ -39,7 +39,7 @@
                         android:layout_height="25dp"
                         android:layout_gravity="center"
                         android:layout_marginRight="10dp"
-                        android:src="@drawable/ic_baseline_notifications_24" />
+                        android:src="@drawable/notice" />
                 </LinearLayout>
 
                 <TextView

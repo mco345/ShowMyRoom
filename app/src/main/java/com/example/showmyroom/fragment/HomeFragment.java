@@ -2,10 +2,8 @@ package com.example.showmyroom.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,12 +35,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.showmyroom.Pref;
 import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
 import com.example.showmyroom.activity.FeedPostActivity;
-import com.example.showmyroom.activity.PostActivity;
-import com.example.showmyroom.activity.TagActivity;
+import com.example.showmyroom.activity.NoticeActivity;
 import com.example.showmyroom.activity.WriteHomeActivity;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Board;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Home;
@@ -69,8 +65,6 @@ import com.kakao.sdk.user.UserApiClient;
 import com.kakao.sdk.user.model.User;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,6 +96,7 @@ public class HomeFragment extends Fragment {
     private String whatSelected;
 
     // notification
+    private boolean isNotice = false;
     private ImageView noticeButton;
 
     // filter
@@ -300,24 +295,43 @@ public class HomeFragment extends Fragment {
         writeButton.setVisibility(View.GONE);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
         UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
             @Override
             public Unit invoke(User user, Throwable throwable) {
                 kakaoId = String.valueOf(user.getId());
+
+                mDatabase.child("notification").child(kakaoId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if(task.isSuccessful()){
+                            if(task.getResult().getValue() != null) isNotice = (boolean) task.getResult().getValue();
+                            if(isNotice) noticeButton.setImageResource(R.drawable.notice_new);
+                        }
+                    }
+                });
+
                 complete_homeItems = new ArrayList<>();
                 adaptData(ADAPT, page); // page = 1
                 return null;
             }
         });
 
+
+
         // 알람 버튼
         noticeButton = v.findViewById(R.id.noticeButton);
+
         noticeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
                     @Override
                     public Unit invoke(User user, Throwable throwable) {
+                        isNotice = false;
+                        mDatabase.child("notification").child(kakaoId).setValue(isNotice);
+                        noticeButton.setImageResource(R.drawable.notice);
+
                         Intent intent = new Intent(getActivity(), NoticeActivity.class);
                         intent.putExtra("myKakaoId", String.valueOf(user.getId()));
                         startActivity(intent);

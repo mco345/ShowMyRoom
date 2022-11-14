@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,12 +21,14 @@ import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
 
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH;
 
 public class TagActivity extends AppCompatActivity {
     private static final String TAG = "TagActivity";
 
     private EditText keywordEditText;
+    private Button addButton;
     private ChipGroup chipGroup;
     private TextView showButton;
     private ArrayList<String> keywordsList = new ArrayList<>();
@@ -37,6 +40,7 @@ public class TagActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tag);
 
+        addButton = findViewById(R.id.addButton);
         chipGroup = findViewById(R.id.chipGroup);
         showButton = findViewById(R.id.showButton);
         keywordEditText = findViewById(R.id.keywordEditText);
@@ -84,11 +88,26 @@ public class TagActivity extends AppCompatActivity {
 
             }
         });
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 키워드를 입력하지 않았을 때
+                if (keywordEditText.getText().toString().length() == 0) {
+                    Toast.makeText(getApplicationContext(), "키워드를 입력해주세요", Toast.LENGTH_SHORT).show();
+                }
+                // 키워드는 10개까지 추가 가능
+                if (chipGroup.getChildCount() == 10) {
+                    Toast.makeText(getApplicationContext(), "키워드 추가는 10개까지 가능합니다.", Toast.LENGTH_SHORT).show();
+                } else {
+                    addNewChip();
+                }
+            }
+        });
         keywordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 switch (actionId) {
-                    case IME_ACTION_SEARCH:
+                    case IME_ACTION_DONE:
                         // 키워드를 입력하지 않았을 때
                         if (keywordEditText.getText().toString().length() == 0) {
                             Toast.makeText(getApplicationContext(), "키워드를 입력해주세요", Toast.LENGTH_SHORT).show();

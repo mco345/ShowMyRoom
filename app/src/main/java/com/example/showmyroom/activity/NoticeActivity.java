@@ -1,4 +1,4 @@
-package com.example.showmyroom.fragment;
+package com.example.showmyroom.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,12 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.example.showmyroom.Notification;
 import com.example.showmyroom.R;
-import com.example.showmyroom.activity.FeedActivity;
-import com.example.showmyroom.activity.FeedPostActivity;
-import com.example.showmyroom.activity.PostActivity;
-import com.example.showmyroom.adapter.MyRecyclerAdapter_Board;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Notice;
 import com.example.showmyroom.items.NoticeItem;
 import com.google.android.gms.tasks.OnCompleteListener;

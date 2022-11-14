@@ -19,22 +19,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="휴대전화 인증"
-            android:textSize="20sp" />
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginBottom="20dp"/>
 
-        <EditText
-            android:id="@+id/phoneNumberEdit"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="휴대전화 번호를 입력하세요."
-            android:inputType="phone"
-            android:textSize="12sp" />
+            android:background="@drawable/square_home_pink"
+            android:padding="10dp">
+            <EditText
+                android:id="@+id/phoneNumberEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="휴대전화 번호를 입력하세요."
+                android:inputType="phone"
+                android:fontFamily="@font/a18"
+                android:textSize="12sp"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"
+                android:background="@null"/>
+        </LinearLayout>
+
+
         <Button
             android:id="@+id/phoneCheckButton"
             android:layout_width="match_parent"
             android:layout_height="35dp"
             android:text="인증번호 받기"
-            android:textSize="10sp"/>
+            android:fontFamily="@font/a4"
+            android:textSize="10sp"
+            android:layout_marginTop="20dp"/>
 
         <LinearLayout
             android:id="@+id/phoneCheckLayout"
@@ -60,8 +77,6 @@
                 android:textSize="10sp"/>
         </LinearLayout>
 
-
-
     </LinearLayout>
 
     <LinearLayout
@@ -75,7 +90,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="아이디"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
 
         <EditText
             android:id="@+id/idEdit"
@@ -105,8 +122,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
+            android:layout_marginBottom="20dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
             android:text="사용자 정보 입력" />
 
 

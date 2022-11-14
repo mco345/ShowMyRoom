@@ -20,17 +20,34 @@
         android:textSize="15sp"
         android:textStyle="bold" />
 
-    <EditText
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:maxLines="1"
-        android:id="@+id/keywordEditText"
-        android:layout_margin="20dp"
-        android:imeOptions="actionSearch"
-        android:hint="키워드를 입력해주세요"
-        android:drawableLeft="@drawable/ic_baseline_grid_3x3_24"
-        />
+        android:orientation="horizontal">
+        <EditText
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:id="@+id/keywordEditText"
+            android:layout_margin="20dp"
+            android:imeOptions="actionDone"
+            android:hint="키워드를 입력해주세요"
+            android:drawableLeft="@drawable/ic_baseline_grid_3x3_24"
+            />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="추가"
+            android:fontFamily="@font/a4"
+            android:layout_gravity="center"
+            android:background="@drawable/primary_button"
+            android:layout_marginRight="20dp"/>
+    </LinearLayout>
+
+
     <com.google.android.material.chip.ChipGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -9,6 +9,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,6 +30,9 @@ public class Notification {
     long now = System.currentTimeMillis();
     String date = String.valueOf(now);
 
+    // Realtime DB
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+
     // 파이어스토어
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
@@ -37,6 +42,7 @@ public class Notification {
 
     public void notice_like(String whatBoard, String postId, String thisPostKakaoId, String myKakaoId) {
         if (!thisPostKakaoId.equals(myKakaoId)) {
+            mDatabase.child("notification").child(thisPostKakaoId).setValue(true);
             noticeItem = new NoticeItem(
                     whatBoard,
                     postId,
@@ -103,12 +109,13 @@ public class Notification {
         );
         if (type.equals("reply")) {
             if (!realKakaoId.equals(myKakaoId)) {
+                mDatabase.child("notification").child(realKakaoId).setValue(true);
                 firestore.collection("notification").add(noticeItem)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
                                 Log.d(TAG, "notice_comment - " + myKakaoId + "가 " + whatBoard + "에서 " + thisPostKakaoId + "의 " + postId + "게시물의 " +
-                                        thisPostKakaoId + "의 댓글에 " + message + "라는 내용의 대댓글을 달았습니다.(" + comment_date + ")");
+                                        realKakaoId + "의 댓글에 " + message + "라는 내용의 대댓글을 달았습니다.(" + comment_date + ")");
 
                             }
                         }).addOnFailureListener(new OnFailureListener() {
@@ -121,6 +128,7 @@ public class Notification {
         } else {
             if (!thisPostKakaoId.equals(myKakaoId)) {
                 if (!realKakaoId.equals(myKakaoId)) {
+                    mDatabase.child("notification").child(thisPostKakaoId).setValue(true);
                     firestore.collection("notification").add(noticeItem)
                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
@@ -185,6 +193,7 @@ public class Notification {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
+                        mDatabase.child("notification").child(thisFeedKakaoId).setValue(true);
                         Log.d(TAG, "notice_follow - " + myKakaoId + "가 " + thisFeedKakaoId + "를 팔로우했습니다.");
                     }
                 }).addOnFailureListener(new OnFailureListener() {

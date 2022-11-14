@@ -39,6 +39,12 @@
             android:layout_gravity="right"
             android:textColor="#717171"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E4E4E4"
+            android:layout_marginVertical="5dp"/>
+
 
 
 

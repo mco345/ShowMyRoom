@@ -29,7 +29,8 @@
                 android:hint="검색"
                 android:singleLine="true"
                 android:imeOptions="actionSearch"
-                android:backgroundTint="@color/more_light_coral"/>
+                android:backgroundTint="@color/more_light_coral"
+                android:fontFamily="@font/a18"/>
             <ImageButton
                 android:id="@+id/search_button"
                 android:layout_width="30dp"

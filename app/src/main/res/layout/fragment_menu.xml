@@ -162,7 +162,7 @@
         android:layout_marginBottom="20dp"
         android:clickable="true"
         android:src="@drawable/ic_baseline_create_24"
-        android:backgroundTint="#f1f1f1"
+        android:backgroundTint="@color/light_coral"
         app:borderWidth="0dp"
         app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="@id/menuLayout"
