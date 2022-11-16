@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -88,7 +89,7 @@ public class HomeFragment extends Fragment {
 
     // progressBar
     private LinearLayout progressBarLayout;
-    private ProgressBar progressBar;
+    private FrameLayout progressBar;
     private TextView progressBarTextView;
 
     // homeDialog

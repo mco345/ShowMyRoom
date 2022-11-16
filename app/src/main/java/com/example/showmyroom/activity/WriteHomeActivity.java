@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -92,6 +93,7 @@ public class WriteHomeActivity extends AppCompatActivity {
     private ArrayList<String> keywordsList = new ArrayList<>();
 
     // ui
+    private ImageButton backButton;
     private EditText contentEditText;
     private View uploadPostButton;
 
@@ -120,6 +122,15 @@ public class WriteHomeActivity extends AppCompatActivity {
         // 파이어베이스
         mDatabase = FirebaseDatabase.getInstance().getReference();
         storageRef = storage.getReference();
+
+        // backButton
+        backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         // roomLayout UI - 내 방 볼래 경우에만 visible
         roomLayout = findViewById(R.id.roomButtonLayout);
@@ -409,7 +420,7 @@ public class WriteHomeActivity extends AppCompatActivity {
         // 2000 milliseconds = 2 seconds
         if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
             backKeyPressedTime = System.currentTimeMillis();
-            toast = Toast.makeText(this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT);
+            toast = Toast.makeText(this, "\'뒤로\' 버튼을 한번 더 누르시면 게시물 작성을 종료합니다.", Toast.LENGTH_SHORT);
             toast.show();
             return;
         }
@@ -417,10 +428,7 @@ public class WriteHomeActivity extends AppCompatActivity {
         // 마지막으로 뒤로가기 버튼을 눌렀던 시간이 2초가 지나지 않았으면 종료
         // 현재 표시된 Toast 취소
         if (System.currentTimeMillis() <= backKeyPressedTime + 2000) {
-            PreferenceManager.setInt(getApplicationContext(), "BackToMain", 0);
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
+            finish();
         }
     }
 

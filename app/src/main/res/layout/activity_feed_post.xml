@@ -7,6 +7,14 @@
     android:orientation="vertical"
     tools:context=".activity.FeedPostActivity">
 
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_baseline_arrow_back_24"
+        android:backgroundTint="@color/white"/>
+
     <LinearLayout
         android:id="@+id/progressBarLayout"
         android:layout_width="match_parent"
@@ -79,7 +87,7 @@
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/feedPostImageViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="380dp"
+                android:layout_height="350dp"
                 android:paddingHorizontal="10dp" />
 
             <me.relex.circleindicator.CircleIndicator

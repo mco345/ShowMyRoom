@@ -69,6 +69,7 @@ public class FeedPostActivity extends AppCompatActivity {
     private View likeButton, nolikeButton, commentButton;
     private EditText commentEditText;
     private ChipGroup chipGroup;
+    private ImageButton backButton;
 
     private String postId, thisFeedKakaoId, userId, postRefText;
     private ArrayList<Uri> postUriList;
@@ -205,6 +206,15 @@ public class FeedPostActivity extends AppCompatActivity {
 
         progressBarLayout = findViewById(R.id.progressBarLayout);
         progressBarLayout.setVisibility(View.VISIBLE);
+
+        // backButton
+        backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         // 게시물 게시자 아이디
         feedPostIdTextView = findViewById(R.id.feedPostIdTextView);

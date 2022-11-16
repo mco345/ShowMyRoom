@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.showmyroom.FeedProfileUpdateActivity;
 import com.example.showmyroom.Notification;
 import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
@@ -56,12 +57,12 @@ import kotlin.jvm.functions.Function2;
 public class FeedActivity extends AppCompatActivity {
     private static final String TAG = "FeedActivity";
 
-    private Button followButton, messageButton, profileEditButton;
+    private Button followButton, profileEditButton;
     private TextView idTextView, postNumberTextView, followerTextView, followingTextView;
     private TextView nameTextView, introTextView;
     private ImageView profileImageView;
 
-    private String kakaoId, userId, name;
+    private String kakaoId, userId, name, introduction = "";
     private String thisFeedKakaoId;
 
     // 팔로우
@@ -89,7 +90,8 @@ public class FeedActivity extends AppCompatActivity {
     private ArrayList<Uri> postUriList = new ArrayList<>();
     private ArrayList<List> postUriList2 = new ArrayList<>();
     private String realFileName;
-    int pos, innerPos, count = 0;
+    int page = 0, count = 0;
+    private boolean isDownloadComplete = false;
 
     // 파이어 스토리지
     private FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -102,28 +104,20 @@ public class FeedActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
-                case -1:
-                    pos++;
-                    count = 0;
-                    if(pos == date.size()){
-                        Log.d(TAG, "finish");
-                        sendEmptyMessage(1);
-                        break;
-                    }else{
-                        Log.d(TAG, "pos : "+pos);
-                        sendEmptyMessage(0);
-                    }
-                    break;
                 case 0:
-                    postUriList = new ArrayList<>();
                     if(date.size()!=0){
                         postRef = storageRef.child("Post/" + thisFeedKakaoId + "/thumbNail/");
                         postRef.listAll()
                                 .addOnSuccessListener(new OnSuccessListener<ListResult>() {
                                     @Override
                                     public void onSuccess(ListResult listResult) {
-                                        for(int i = 0; i<date.size();i++){
+                                        for(int i = 0; i<8; i++){
                                             postUriList.add(Uri.parse(""));
+                                            if(postUriList.size() == date.size()){
+                                                Log.d(TAG, "postUriList size - "+postUriList.size());
+                                                isDownloadComplete = true;
+                                                break;
+                                            }
                                         }
                                         Log.d(TAG, "size : "+postUriList.size());
                                         for (StorageReference item : listResult.getItems()) {
@@ -137,13 +131,24 @@ public class FeedActivity extends AppCompatActivity {
                                                         realFileName = item.toString().substring(item.toString().length()-17, item.toString().indexOf(".png"));
                                                         Log.d(TAG, "realFileName : "+realFileName + ", index : "+date.indexOf(realFileName));
                                                         if(date.indexOf(realFileName) != -1){
-                                                            postUriList.set(date.indexOf(realFileName), task.getResult());
-                                                            Log.d(TAG, "postUriList : "+postUriList);
-                                                            count++;
-                                                            if(count == postUriList.size()){
-//                                                            postUriList2.add(postUriList);
-//                                                            Log.d(TAG, "postUriList index : "+ pos + ", postUriList : " + postUriList2);
-                                                                sendEmptyMessage(1);
+                                                            if(date.indexOf(realFileName) >= page * 8
+                                                                    && date.indexOf(realFileName) < postUriList.size())
+                                                            {
+                                                                postUriList.set(date.indexOf(realFileName), task.getResult());
+                                                                gridAdapter.setUriList(postUriList);
+                                                                gridAdapter.notifyDataSetChanged();
+                                                                count++;
+                                                                Log.d(TAG, "count!!! - "+count+"postUriList size!!! - "+postUriList.size());
+
+                                                                if(count == postUriList.size()){
+                                                                    progressBarLayout.setVisibility(View.GONE);
+                                                                    Log.d(TAG, "isDownloadComplete - "+isDownloadComplete);
+                                                                    if(!isDownloadComplete) {
+                                                                        page++;
+                                                                        sendEmptyMessage(0);
+                                                                    }
+
+                                                                }
                                                             }
                                                         }
                                                     } else {
@@ -161,32 +166,6 @@ public class FeedActivity extends AppCompatActivity {
                         });
                     }
 
-                    break;
-                case 1:
-                    // 프래그먼트 첫 호출
-//                    Log.d(TAG, "2 postUriList : "+postUriList);
-//                    postUriList = new ArrayList<>();
-//                    for(int i = 0; i < postUriList2.size(); i++){
-//                        postUriList.add((Uri) postUriList2.get(i).get(0));
-//                    }
-                    Log.d(TAG, "Complete postUriList : "+ postUriList);
-                    gridAdapter.setUriList(postUriList);
-                    postGridView.setAdapter(gridAdapter);
-                    progressBarLayout.setVisibility(View.GONE);
-                    sendEmptyMessage(2);
-                    break;
-                case 2:
-                    postGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Log.d(TAG, "post Clicked : "+date.get(position));
-                            Intent feedIntent = new Intent(getApplicationContext(), FeedPostActivity.class);
-                            feedIntent.putExtra("postRef", "Post/" + thisFeedKakaoId + "/" + date.get(position) + "/");
-                            feedIntent.putExtra("postId", postIdList.get(position));
-                            feedIntent.putExtra("thisFeedKakaoId", thisFeedKakaoId);
-                            startActivity(feedIntent);
-                        }
-                    });
                     break;
 
             }
@@ -211,6 +190,7 @@ public class FeedActivity extends AppCompatActivity {
 
         idTextView = findViewById(R.id.idTextView);
         nameTextView = findViewById(R.id.nameTextView);
+        introTextView = findViewById(R.id.introTextView);
 
         // 아이디
         mDatabase.child("users").child(thisFeedKakaoId).child("id").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -228,10 +208,22 @@ public class FeedActivity extends AppCompatActivity {
                 nameTextView.setText(name);
             }
         });
+        // 소개
+        mDatabase.child("users").child(thisFeedKakaoId).child("introduction").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.getResult().getValue() != null){
+                    introduction = task.getResult().getValue().toString();
+                    introduction = introduction.replace("\n", " ");
+                    introTextView.setText(introduction);
+                }else{
+                    introTextView.setVisibility(View.GONE);
+                }
+            }
+        });
 
         notMeLayout = findViewById(R.id.notMeLayout);
         followButton = findViewById(R.id.followButton);
-        messageButton = findViewById(R.id.messageButton);
         profileEditButton = findViewById(R.id.profileEditButton);
 
         // 팔로우
@@ -262,6 +254,18 @@ public class FeedActivity extends AppCompatActivity {
             }
         });
 
+        // 프로필 정보 변경
+        profileEditButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), FeedProfileUpdateActivity.class);
+                intent.putExtra("thisFeedKakaoId", thisFeedKakaoId);
+                intent.putExtra("name", name);
+                intent.putExtra("introduction", introduction);
+                startActivity(intent);
+            }
+        });
+
         followerTextView = findViewById(R.id.followerNumberTextView);
         followingTextView = findViewById(R.id.followingNumberTextView);
 
@@ -272,9 +276,9 @@ public class FeedActivity extends AppCompatActivity {
                 // 본인인지 아닌지
                 kakaoId = String.valueOf(user.getId());
                 if (kakaoId.equals(thisFeedKakaoId)){
-                    notMeLayout.setVisibility(View.GONE);
+                    profileEditButton.setVisibility(View.VISIBLE);
                 }else{
-                    profileEditButton.setVisibility(View.GONE);
+                    notMeLayout.setVisibility(View.VISIBLE);
                 }
 
                 // 팔로우, 팔로워
@@ -294,7 +298,7 @@ public class FeedActivity extends AppCompatActivity {
                                 isFollow = true;
                                 followButton.setText("언팔로우");
                                 followButton.setTextColor(Color.BLACK);
-                                followButton.setBackgroundColor(Color.WHITE);
+                                followButton.setBackgroundColor(Color.parseColor("#F1F1F1"));
                                 break;
                             }
                         }
@@ -359,11 +363,25 @@ public class FeedActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                profileImageView.setImageResource(R.drawable.ic_baseline_person_24);
 
             }
         });
 
         postGridView = findViewById(R.id.postGridView);
+
+        postGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "post Clicked : "+date.get(position));
+                Intent feedIntent = new Intent(getApplicationContext(), FeedPostActivity.class);
+                feedIntent.putExtra("postRef", "Post/" + thisFeedKakaoId + "/" + date.get(position) + "/");
+                feedIntent.putExtra("postId", postIdList.get(position));
+                feedIntent.putExtra("thisFeedKakaoId", thisFeedKakaoId);
+                startActivity(feedIntent);
+            }
+        });
+
         gridAdapter = new MyGridAdapter_Feed(this);
 
         // 게시물 작성한 시간 받아오기
@@ -385,6 +403,7 @@ public class FeedActivity extends AppCompatActivity {
                             postNumberTextView = findViewById(R.id.postNumberTextView);
                             postNumberTextView.setText(String.valueOf(date.size()));
                             if(date.size() != 0){
+                                postGridView.setAdapter(gridAdapter);
                                 handler.sendEmptyMessage(0);
                             }else{
                                 progressBarLayout.setVisibility(View.GONE);
@@ -406,4 +425,6 @@ public class FeedActivity extends AppCompatActivity {
 
 
     }
+
+
 }

@@ -116,14 +116,26 @@
                 android:background="@color/white"
                 android:orientation="vertical">
 
-                <ProgressBar
+                <FrameLayout
                     android:id="@+id/progressBar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:scaleX="0.15"
-                    android:scaleY="0.15"
-                    android:visibility="gone" />
+                    android:visibility="gone">
+                    <ProgressBar
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:scaleX="0.15"
+                        android:scaleY="0.15"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="게시물 불러오는 중..."
+                        android:fontFamily="@font/a18"
+                        android:layout_marginTop="40dp"/>
+                </FrameLayout>
+
 
                 <TextView
                     android:id="@+id/progressBarText"

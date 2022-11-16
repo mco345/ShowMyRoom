@@ -58,7 +58,7 @@ public class MyGridAdapter_Feed extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView = new ImageView(context);
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(300, 300));
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(400, 400));
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setPadding(10,10,10,10);
         Glide.with(context)

@@ -9,7 +9,7 @@
     tools:context=".activity.FeedActivity">
 
 
-    <androidx.core.widget.NestedScrollView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -24,8 +24,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="15dp"
-                android:text="id"
-                android:textSize="30dp" />
+                android:text=""
+                android:textSize="25dp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -35,12 +38,13 @@
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="10dp">
 
-                <ImageView
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/profileImageView"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:background="@drawable/square"
-                    android:src="@drawable/ic_baseline_person_24" />
+                    app:civ_border_color="#3BFFFFFF"
+                    app:civ_border_overlay="true"
+                    app:civ_border_width="5dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -60,7 +64,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="0"
-                            android:textSize="25sp" />
+                            android:textSize="25sp"
+                            android:fontFamily="@font/a18"/>
 
                         <TextView
                             android:id="@+id/followerNumberTextView"
@@ -69,7 +74,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="0"
-                            android:textSize="25sp" />
+                            android:textSize="25sp"
+                            android:fontFamily="@font/a18"/>
 
                         <TextView
                             android:id="@+id/followingNumberTextView"
@@ -78,7 +84,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="0"
-                            android:textSize="25sp" />
+                            android:textSize="25sp"
+                            android:fontFamily="@font/a18"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -92,7 +99,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="게시물"
-                            android:textSize="15sp" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/a18"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -100,7 +108,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="팔로워"
-                            android:textSize="15sp" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/a18"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -108,7 +117,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="팔로잉"
-                            android:textSize="15sp" />
+                            android:textSize="15sp"
+                            android:fontFamily="@font/a18"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -117,10 +127,12 @@
                 android:id="@+id/nameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="20dp"
-                android:text="name"
+                android:paddingHorizontal="25dp"
+                android:layout_marginTop="5dp"
+                android:text=""
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:fontFamily="@font/a9"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/introTextView"
@@ -128,14 +140,19 @@
                 android:layout_height="wrap_content"
                 android:maxLines="3"
                 android:paddingHorizontal="20dp"
-                android:text="introduction" />
+                android:text=""
+                android:textSize="15sp"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="10dp"
+                android:fontFamily="@font/a18"/>
 
             <LinearLayout
                 android:id="@+id/notMeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="20dp"
-                android:paddingVertical="10dp">
+                android:paddingVertical="10dp"
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/followButton"
@@ -143,28 +160,21 @@
                     android:layout_height="40dp"
                     android:layout_marginHorizontal="10dp"
                     android:layout_weight="1"
-                    android:text="팔로우" />
-
-                <Button
-                    android:id="@+id/messageButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:layout_marginHorizontal="10dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#F1F1F1"
-                    android:text="메시지 보내기"
-                    android:textColor="#404040" />
+                    android:text="팔로우"
+                    android:fontFamily="@font/a4"/>
             </LinearLayout>
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/profileEditButton"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginVertical="10dp"
-                android:backgroundTint="#F1F1F1"
+                android:background="@drawable/square_home_pink"
                 android:text="프로필 편집"
-                android:textColor="#404040" />
+                android:textColor="#404040"
+                android:visibility="gone"
+                android:fontFamily="@font/a4"/>
 
             <LinearLayout
                 android:id="@+id/noResultLayout"
@@ -200,20 +210,42 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <ProgressBar
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center" />
 
-                <ProgressBar
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/a18"
+                        android:text="게시물 불러오는 중.."
+                        android:layout_marginTop="40dp"
+                        android:layout_gravity="center" />
+                </FrameLayout>
+
+
             </LinearLayout>
 
             <GridView
                 android:id="@+id/postGridView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:numColumns="3" />
+                android:numColumns="2"
+                android:padding="20dp"
+                android:gravity="center"
+
+                android:scrollbarStyle="insideInset"
+                android:verticalScrollbarPosition="right"
+                android:scrollbarSize="3dp"
+                android:scrollbarThumbVertical="@color/more_light_coral"
+                android:scrollbarTrackVertical="@color/white"
+                />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </ScrollView>
 
 
 </LinearLayout>

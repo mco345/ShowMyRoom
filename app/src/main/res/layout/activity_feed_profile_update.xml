@@ -1,9 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".FeedProfileUpdateActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/white"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_baseline_arrow_back_24" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/updateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            android:fontFamily="@font/a4"
+            android:text="확인"
+            android:textColor="@color/light_coral"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="80dp"
+                android:src="@drawable/daily"
+                app:civ_border_color="#3BFFFFFF"
+                app:civ_border_overlay="true"
+                app:civ_border_width="10dp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/changeProfileImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="100dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/square_home_pink"
+                android:fontFamily="@font/a4"
+                android:text="프로필 사진 변경"
+                android:textColor="@color/light_coral" />
+
+            <EditText
+                android:id="@+id/nameEditText"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/square_selected"
+                android:backgroundTint="@null"
+                android:fontFamily="@font/a18"
+                android:hint="이름"
+                android:maxLines="1"
+                android:padding="10dp"
+                android:singleLine="true" />
+            <FrameLayout
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                >
+                <EditText
+                    android:id="@+id/introEditText"
+                    android:layout_width="250dp"
+                    android:layout_height="100dp"
+                    android:background="@drawable/square_selected"
+                    android:backgroundTint="@null"
+                    android:fontFamily="@font/a18"
+                    android:gravity="top"
+                    android:hint="소개를 작성해주세요."
+                    android:paddingHorizontal="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="20dp"
+                    android:textSize="15sp"/>
+                <TextView
+                    android:id="@+id/textCountTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|right"
+                    android:layout_margin="5dp"
+                    android:text="/80"/>
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+
+
+</LinearLayout>

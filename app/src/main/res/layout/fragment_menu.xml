@@ -132,7 +132,14 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+
+                android:scrollbarStyle="insideInset"
+                android:verticalScrollbarPosition="right"
+                android:scrollbarSize="10dp"
+                android:scrollbarThumbVertical="@color/light_coral"
+                android:scrollbarTrackVertical="@color/white"
+                />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
