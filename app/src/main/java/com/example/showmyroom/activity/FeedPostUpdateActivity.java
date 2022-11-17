@@ -1,9 +1,11 @@
 package com.example.showmyroom.activity;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
 import com.example.showmyroom.adapter.MyPagerAdapter_Post;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -131,34 +134,50 @@ public class FeedPostUpdateActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 게시물 데이터베이스 삭제
-                db.collection("homePosts").document(postId).delete();
-                Toast.makeText(getApplicationContext(), "삭제 완료하였습니다.", Toast.LENGTH_SHORT).show();
-
-                // 알림 데이터베이스 삭제(해당 게시물때문에 발생한 알림 모두 삭제)
-                db.collection("notification")
-                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                AlertDialog.Builder alert = new AlertDialog.Builder(FeedPostUpdateActivity.this);
+                alert.setTitle("정말 삭제하시겠습니까?");
+                alert.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
-                            for(DocumentSnapshot document : task.getResult()){
-                                if(document.getData().get("postId").equals(postId)){
-                                    db.collection("notification").document(document.getId()).delete();
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 게시물 데이터베이스 삭제
+                        db.collection("homePosts").document(postId).delete();
+                        Toast.makeText(getApplicationContext(), "삭제 완료하였습니다.", Toast.LENGTH_SHORT).show();
+
+                        // 알림 데이터베이스 삭제(해당 게시물때문에 발생한 알림 모두 삭제)
+                        db.collection("notification")
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if(task.isSuccessful()){
+                                    for(DocumentSnapshot document : task.getResult()){
+                                        if(document.getData().get("postId").equals(postId)){
+                                            db.collection("notification").document(document.getId()).delete();
+                                        }
+                                    }
                                 }
                             }
-                        }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+
+                        Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
+                        intent.putExtra("kakaoId", thisFeedKakaoId);
+                        intent.putExtra("isDelete", true);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
                     }
-                }).addOnFailureListener(new OnFailureListener() {
+                }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
+                    public void onClick(DialogInterface dialog, int which) {
 
                     }
                 });
 
-                Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
-                intent.putExtra("kakaoId", thisFeedKakaoId);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                AlertDialog alertDialog = alert.create();
+                alertDialog.show();
             }
         });
     }

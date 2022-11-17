@@ -140,7 +140,6 @@ public class WriteHomeActivity extends AppCompatActivity {
         keywordButton = findViewById(R.id.keywordButton);
         if (whatSelected.equals("daily")) {
             roomLayout.setVisibility(View.GONE);
-            keywordButton.setVisibility(View.GONE);
         }
         // 평수
         pyButton.setOnClickListener(new View.OnClickListener() {
@@ -321,52 +320,6 @@ public class WriteHomeActivity extends AppCompatActivity {
 
             }
         });
-
-
-//        StorageReference listRef = FirebaseStorage.getInstance().getReference().child("Post/" + uploadTime);
-//        Log.d(TAG, String.valueOf(listRef.listAll()));
-//
-//        listRef.listAll()
-//                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-//                    @Override
-//                    public void onSuccess(ListResult listResult) {
-//                        int i = 0;
-//                        Log.d(TAG, ""+listResult.getItems());
-//                        // 폴더 내의 item이 동날 때까지 모두 가져온다.
-//                        for (StorageReference item : listResult.getItems()) {
-//                            Log.d(TAG, ""+2);
-//                            // reference의 item(이미지) url 받아오기
-//                            item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Uri> task) {
-//                                    if (task.isSuccessful()) {
-//                                        uriArrayList.add(task.getResult());
-//                                    } else {
-//
-//                                    }
-//                                }
-//
-//
-//                            }).addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    // Uh-oh, an error occurred!
-//                                    Log.d(TAG, e.toString());
-//                                }
-//                            });
-//                            Log.d(TAG, String.valueOf(uriArrayList.get(i)));
-//                            i++;
-//
-//                        }
-//
-//
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Log.d(TAG, e.toString());
-//            }
-//        });
     }
 
     private void uploader(String kakaoId, String id, String content, String postDate) {

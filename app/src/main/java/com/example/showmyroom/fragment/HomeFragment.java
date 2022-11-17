@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,6 +41,7 @@ import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
 import com.example.showmyroom.activity.FeedPostActivity;
 import com.example.showmyroom.activity.NoticeActivity;
+import com.example.showmyroom.activity.PostSearchActivity;
 import com.example.showmyroom.activity.WriteHomeActivity;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Board;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Home;
@@ -95,6 +97,9 @@ public class HomeFragment extends Fragment {
     // homeDialog
     private Boolean isSelected = false;
     private String whatSelected;
+
+    // search
+    private ImageView searchButton;
 
     // notification
     private boolean isNotice = false;
@@ -318,6 +323,16 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        // 검색 버튼
+        searchButton = v.findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), PostSearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
 
         // 알람 버튼
@@ -522,16 +537,10 @@ public class HomeFragment extends Fragment {
                             });
                         }
 
-
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
-
                 }
-
-
 
 
                 // 게시물 종류 - 현재 상태
@@ -544,6 +553,9 @@ public class HomeFragment extends Fragment {
                             View child = openLayout.getChildAt(i);
                             child.setEnabled(true);
                         }
+                        setChipEnable(chipGroup_py, true);
+                        setChipEnable(chipGroup_dwell, true);
+                        setChipEnable(chipGroup_style, true);
                         roomClicked = true;
                         dailyClicked = false;
                         break;
@@ -555,6 +567,9 @@ public class HomeFragment extends Fragment {
                             View child = openLayout.getChildAt(i);
                             child.setEnabled(false);
                         }
+                        setChipEnable(chipGroup_py, false);
+                        setChipEnable(chipGroup_dwell, false);
+                        setChipEnable(chipGroup_style, false);
                         roomClicked = false;
                         dailyClicked = true;
                         break;
@@ -568,6 +583,9 @@ public class HomeFragment extends Fragment {
                             View child = openLayout.getChildAt(i);
                             child.setEnabled(true);
                         }
+                        setChipEnable(chipGroup_py, true);
+                        setChipEnable(chipGroup_dwell, true);
+                        setChipEnable(chipGroup_style, true);
                         roomClicked = true;
                         dailyClicked = true;
                         break;
@@ -584,6 +602,9 @@ public class HomeFragment extends Fragment {
                                 View child = openLayout.getChildAt(i);
                                 child.setEnabled(false);
                             }
+                            setChipEnable(chipGroup_py, false);
+                            setChipEnable(chipGroup_dwell, false);
+                            setChipEnable(chipGroup_style, false);
                             roomClicked = false;
                         } else {
                             roomLayout.setBackgroundResource(R.drawable.square_selected);
@@ -593,6 +614,9 @@ public class HomeFragment extends Fragment {
                                 View child = openLayout.getChildAt(i);
                                 child.setEnabled(true);
                             }
+                            setChipEnable(chipGroup_py, true);
+                            setChipEnable(chipGroup_dwell, true);
+                            setChipEnable(chipGroup_style, true);
                             roomClicked = true;
                         }
                     }
@@ -634,7 +658,9 @@ public class HomeFragment extends Fragment {
                                         newChip.setOnCloseIconClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                handleChipCloseIconClicked(pyButton, pySelected, (Chip) v);
+                                                if(v.isEnabled()){
+                                                    handleChipCloseIconClicked(pyButton, pySelected, (Chip) v);
+                                                }
                                             }
                                         });
                                     } catch (Exception e) {
@@ -671,7 +697,10 @@ public class HomeFragment extends Fragment {
                                         newChip.setOnCloseIconClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                handleChipCloseIconClicked(dwellButton, dwellSelected, (Chip) v);
+                                                if(v.isEnabled()){
+                                                    handleChipCloseIconClicked(dwellButton, dwellSelected, (Chip) v);
+                                                }
+
                                             }
                                         });
                                     } catch (Exception e) {
@@ -708,7 +737,9 @@ public class HomeFragment extends Fragment {
                                         newChip.setOnCloseIconClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                handleChipCloseIconClicked(styleButton, styleSelected, (Chip) v);
+                                                if(v.isEnabled()){
+                                                    handleChipCloseIconClicked(styleButton, styleSelected, (Chip) v);
+                                                }
                                             }
                                         });
                                     } catch (Exception e) {
@@ -846,6 +877,12 @@ public class HomeFragment extends Fragment {
         });
 
         return v;
+    }
+
+    private void setChipEnable(ChipGroup chipGroup, boolean status) {
+        for (int i = 0; i < chipGroup.getChildCount(); i++) {
+            chipGroup.getChildAt(i).setEnabled(status);
+        }
     }
 
     private void handleChipCloseIconClicked(Button whatButton, ArrayList<String> whatSelected, Chip chip) {

@@ -191,7 +191,7 @@ public class MyRecyclerAdapter_Comment extends RecyclerView.Adapter<MyRecyclerAd
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                commentImage.setImageResource(R.drawable.ic_baseline_person_24);
+                                commentImage.setImageResource(R.drawable.person);
                             }
                         });
                     }

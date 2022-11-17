@@ -108,7 +108,6 @@ public class SearchFragment extends Fragment {
 
                 case ADAPT_VIEW:
                     // 프래그먼트 첫 호출
-                    Log.d(TAG, "1");
                     Log.d(TAG, String.valueOf(memberItems.size()));
                     recyclerView.setAdapter(myRecyclerAdapter);
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
@@ -256,7 +255,8 @@ public class SearchFragment extends Fragment {
                     Log.d(TAG, memberItem.toString());
                     MemberItem item = new MemberItem(
                             memberItem.get("kakaoId").toString(),
-                            userId = memberItem.get("id").toString()
+                            memberItem.get("id").toString(),
+                            memberItem.get("name").toString()
                     );
                     memberItems.add(item);
 

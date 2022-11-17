@@ -189,7 +189,7 @@ public class MyRecyclerAdapter_Home extends RecyclerView.Adapter<RecyclerView.Vi
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    profile.setImageResource(R.drawable.ic_baseline_person_24);
+                    profile.setImageResource(R.drawable.person);
                 }
             });
             profile.setOnClickListener(new View.OnClickListener() {

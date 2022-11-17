@@ -5,4 +5,5 @@
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     app:closeIconEnabled="true"
-    android:textAppearance="@style/chipText"/>
+    android:textAppearance="@style/chipText"
+    android:checkable="false"/>

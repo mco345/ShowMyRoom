@@ -22,7 +22,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShowMyRoom"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FeedProfileUpdateActivity"></activity>
+        <activity android:name=".FollowListActivity"></activity>
+        <activity android:name=".activity.PostSearchActivity" />
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".activity.FeedProfileUpdateActivity" />
         <activity android:name=".activity.TagActivity" />
         <activity android:name=".activity.WriteDealActivity" />
         <activity android:name=".activity.DealPostActivity" />

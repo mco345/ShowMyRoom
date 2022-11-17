@@ -70,12 +70,13 @@ public class MyRecyclerAdapter_SearchMember extends RecyclerView.Adapter<MyRecyc
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView memberImageView;
-        TextView memberIdTextView;
+        TextView memberIdTextView, memberNameTextView;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             memberImageView = itemView.findViewById(R.id.memberImageView);
             memberIdTextView = itemView.findViewById(R.id.memberIdTextView);
+            memberNameTextView = itemView.findViewById(R.id.memberNameTextView);
 
 
 
@@ -96,6 +97,7 @@ public class MyRecyclerAdapter_SearchMember extends RecyclerView.Adapter<MyRecyc
             Log.d("SearchMember", memberItems.getUserId()+memberItems.getKakaoId());
             memberImageView.setImageResource(0);
             memberIdTextView.setText("");
+            memberNameTextView.setText("");
 
             storageRef = storage.getReference();
             pathRef = storageRef.child("Profile/" + memberItems.getKakaoId() + ".png");
@@ -104,13 +106,14 @@ public class MyRecyclerAdapter_SearchMember extends RecyclerView.Adapter<MyRecyc
                 public void onSuccess(Uri uri) {
                     Glide.with(memberImageView.getContext()).load(uri).apply(RequestOptions.bitmapTransform(new RoundedCorners(14))).into(memberImageView);
                     memberIdTextView.setText(memberItems.getUserId());
+                    memberNameTextView.setText(memberItems.getName());
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    memberImageView.setImageResource(R.drawable.ic_baseline_person_24);
+                    memberImageView.setImageResource(R.drawable.person);
                     memberIdTextView.setText(memberItems.getUserId());
-
+                    memberNameTextView.setText(memberItems.getName());
                 }
             });
 

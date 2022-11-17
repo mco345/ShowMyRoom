@@ -147,7 +147,7 @@ public class MyRecyclerAdapter_Notice extends RecyclerView.Adapter<RecyclerView.
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    profileImage.setImageResource(R.drawable.ic_baseline_person_24);
+                    profileImage.setImageResource(R.drawable.person);
 
                 }
             });

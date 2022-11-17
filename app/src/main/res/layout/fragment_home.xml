@@ -34,6 +34,14 @@
                         android:layout_weight="1" />
 
                     <ImageView
+                        android:id="@+id/searchButton"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="10dp"
+                        android:src="@drawable/ic_baseline_search_white_24" />
+
+                    <ImageView
                         android:id="@+id/noticeButton"
                         android:layout_width="25dp"
                         android:layout_height="25dp"

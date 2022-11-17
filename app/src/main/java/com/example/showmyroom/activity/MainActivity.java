@@ -148,18 +148,22 @@ public class MainActivity extends AppCompatActivity {
             switch (menuItem.getItemId()){
                 case R.id.tab_home:
                     fragmentManager.beginTransaction().hide(activeFragment).show(homeFragment).commit();
+                    PreferenceManager.setInt(MainActivity.this, "BackToMain", 0);
                     activeFragment = homeFragment;
                     return true;
                 case R.id.tab_search:
                     fragmentManager.beginTransaction().hide(activeFragment).show(searchFragment).commit();
+                    PreferenceManager.setInt(MainActivity.this, "BackToMain", 1);
                     activeFragment = searchFragment;
                     return true;
                 case R.id.tab_menu:
                     fragmentManager.beginTransaction().hide(activeFragment).show(menuFragment).commit();
+                    PreferenceManager.setInt(MainActivity.this, "BackToMain", 2);
                     activeFragment = menuFragment;
                     return true;
                 case R.id.tab_setting:
                     fragmentManager.beginTransaction().hide(activeFragment).show(settingFragment).commit();
+                    PreferenceManager.setInt(MainActivity.this, "BackToMain", 3);
                     activeFragment = settingFragment;
                     return true;
             }

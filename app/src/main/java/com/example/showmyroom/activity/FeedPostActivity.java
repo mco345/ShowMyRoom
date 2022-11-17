@@ -64,6 +64,9 @@ import me.relex.circleindicator.CircleIndicator;
 public class FeedPostActivity extends AppCompatActivity {
     private static final String TAG = "FeedPostActivity";
 
+    // activity 변수
+    public static FeedPostActivity activity;
+
     private TextView feedPostIdTextView, contentTextView, likeNumTextView;
     private ImageView feedPostProfileImageView;
     private View likeButton, nolikeButton, commentButton;
@@ -195,6 +198,9 @@ public class FeedPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_post);
 
+        // 액티비티 변수
+        activity = this;
+
         Intent feedPostIntent = getIntent();
         postRefText = feedPostIntent.getStringExtra("postRef");
         postId = feedPostIntent.getStringExtra("postId");
@@ -234,7 +240,7 @@ public class FeedPostActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                feedPostProfileImageView.setImageResource(R.drawable.ic_baseline_person_24);
+                feedPostProfileImageView.setImageResource(R.drawable.person);
             }
         });
         feedPostProfileImageView.setOnClickListener(new View.OnClickListener() {

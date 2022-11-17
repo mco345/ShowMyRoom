@@ -17,14 +17,12 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.showmyroom.FeedProfileUpdateActivity;
+import com.example.showmyroom.FollowListActivity;
 import com.example.showmyroom.Notification;
-import com.example.showmyroom.PreferenceManager;
 import com.example.showmyroom.R;
 import com.example.showmyroom.adapter.MyGridAdapter_Feed;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -64,17 +62,15 @@ public class FeedActivity extends AppCompatActivity {
 
     private String kakaoId, userId, name, introduction = "";
     private String thisFeedKakaoId;
+    private boolean isDelete = false;
 
     // 팔로우
     private boolean isFollow = false;
     private String thisFeedFollowingKey, thisFeedFollowerKey, followingKey, followersKey;
     private ArrayList<String> followersList, followingList;
 
+    // 상대방일 때 보여줄 layout
     private LinearLayout notMeLayout;
-
-    private MyGridAdapter_Feed myGridAdapterFeed;
-
-    private DatabaseReference mDatabase;
 
     // 게시물 없음
     private LinearLayout noResultLayout;
@@ -92,6 +88,9 @@ public class FeedActivity extends AppCompatActivity {
     private String realFileName;
     int page = 0, count = 0;
     private boolean isDownloadComplete = false;
+
+    // 실시간 db
+    private DatabaseReference mDatabase;
 
     // 파이어 스토리지
     private FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -180,6 +179,7 @@ public class FeedActivity extends AppCompatActivity {
         // Intent 변수 받아오기
         Intent feedIntent = getIntent();
         thisFeedKakaoId = feedIntent.getStringExtra("kakaoId");
+        isDelete = feedIntent.getBooleanExtra("isDelete", false);
 
         Log.d(TAG, thisFeedKakaoId);
 
@@ -213,9 +213,13 @@ public class FeedActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if(task.getResult().getValue() != null){
-                    introduction = task.getResult().getValue().toString();
-                    introduction = introduction.replace("\n", " ");
-                    introTextView.setText(introduction);
+                    if(task.getResult().getValue().toString().length() == 0){
+                        introTextView.setVisibility(View.GONE);
+                    }else{
+                        introduction = task.getResult().getValue().toString();
+                        introduction = introduction.replace("\n", " ");
+                        introTextView.setText(introduction);
+                    }
                 }else{
                     introTextView.setVisibility(View.GONE);
                 }
@@ -266,8 +270,30 @@ public class FeedActivity extends AppCompatActivity {
             }
         });
 
+        // 팔로우, 팔로워 목록
         followerTextView = findViewById(R.id.followerNumberTextView);
         followingTextView = findViewById(R.id.followingNumberTextView);
+        // 팔로워
+        followerTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), FollowListActivity.class);
+                intent.putExtra("isWhat", "follower");
+                intent.putStringArrayListExtra("followersList", followersList);
+                startActivity(intent);
+            }
+        });
+        // 팔로잉
+        followingTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), FollowListActivity.class);
+                intent.putExtra("isWhat", "following");
+                intent.putStringArrayListExtra("followingList", followingList);
+                startActivity(intent);
+            }
+        });
+
 
         // 본인인지에 따라 UI 변경
         UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
@@ -363,7 +389,7 @@ public class FeedActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                profileImageView.setImageResource(R.drawable.ic_baseline_person_24);
+                profileImageView.setImageResource(R.drawable.person);
 
             }
         });
@@ -420,11 +446,17 @@ public class FeedActivity extends AppCompatActivity {
                     }
                 });
 
-
-
-
-
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
 
+        if(isDelete){
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }else{
+            finish();
+        }
+    }
 }

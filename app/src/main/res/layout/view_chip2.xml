@@ -8,4 +8,5 @@
     app:chipBackgroundColor="@color/more_light_coral"
     app:closeIconEnabled="true"
     app:closeIconTint="@color/light_coral"
-    android:textAppearance="@style/chipText"/>
+    android:textAppearance="@style/chipText"
+    android:checkable="false"/>

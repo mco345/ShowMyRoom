@@ -37,8 +37,7 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="20dp"
-                android:background="@drawable/square"
-                android:src="@drawable/ic_baseline_person_24" />
+                android:src="@drawable/person" />
 
             <LinearLayout
                 android:layout_width="match_parent"
