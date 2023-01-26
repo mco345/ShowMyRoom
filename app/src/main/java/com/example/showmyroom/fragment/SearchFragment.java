@@ -58,7 +58,8 @@ public class SearchFragment extends Fragment {
 
     private String kakaoId, userId;
 //    private ArrayList<String> kakaoId, userId;
-    private static final int GET_IMG = 0, ADAPT_VIEW = 1, DELETE_LOADING = 2;
+    private static final int RENEW = 0, ADAPT_VIEW = 1, DELETE_LOADING = 2;
+    private boolean isFirstAdapt = true;
 
     //키보드
     private InputMethodManager imm;
@@ -108,12 +109,18 @@ public class SearchFragment extends Fragment {
 
                 case ADAPT_VIEW:
                     // 프래그먼트 첫 호출
+                    isFirstAdapt = false;
                     Log.d(TAG, String.valueOf(memberItems.size()));
                     recyclerView.setAdapter(myRecyclerAdapter);
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
                     myRecyclerAdapter.setMemberItems(memberItems);
                     recyclerView.setLayoutManager(mLayoutManager);
                     handler.sendEmptyMessage(DELETE_LOADING);
+                    break;
+                case RENEW:
+                    // 갱신
+                    myRecyclerAdapter.setMemberItems(memberItems);
+                    myRecyclerAdapter.notifyDataSetChanged();
                     break;
                 case DELETE_LOADING:
                     progressBarLayout.setVisibility(View.GONE);
@@ -145,7 +152,7 @@ public class SearchFragment extends Fragment {
 
         myRecyclerAdapter = new MyRecyclerAdapter_SearchMember();
 
-        adaptMember();
+        adaptMember(ADAPT_VIEW);
 
         myRecyclerAdapter.setOnItemClickListener(new MyRecyclerAdapter_SearchMember.OnItemClickListener() {
             @Override
@@ -215,7 +222,13 @@ public class SearchFragment extends Fragment {
 
 
         return v;
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(!isFirstAdapt)   adaptMember(RENEW);
 
     }
 
@@ -241,7 +254,7 @@ public class SearchFragment extends Fragment {
 
 
 
-    private void adaptMember() {
+    private void adaptMember(int send_message) {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
@@ -261,7 +274,7 @@ public class SearchFragment extends Fragment {
                     memberItems.add(item);
 
                 }
-                handler.sendEmptyMessage(ADAPT_VIEW);
+                handler.sendEmptyMessage(send_message);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.showmyroom.Notification;
 import com.example.showmyroom.TimeMaximum;
 import com.example.showmyroom.items.CommentItem;
 import com.example.showmyroom.adapter.MyRecyclerAdapter_Comment;
@@ -68,6 +69,9 @@ public class PostActivity extends AppCompatActivity {
     private ArrayList<CommentItem> comments;
     private Boolean isReplySecret = false;
     private String realKakaoId;
+
+    // Notification
+    private Notification notification = new Notification();
 
     private RecyclerView commentRecyclerView;
     private MyRecyclerAdapter_Comment myRecyclerAdapter;
@@ -163,18 +167,18 @@ public class PostActivity extends AppCompatActivity {
         isSecretLayout = findViewById(R.id.isSecretLayout);
         isSecretImage = findViewById(R.id.isSecretCheckImage);
         isSecretTextView = findViewById(R.id.isSecretTextView);
-        if(boardNum == 1){
+        if (boardNum == 1) {
             isSecretLayout.setVisibility(View.VISIBLE);
         }
         isSecretLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isSecret){
+                if (isSecret) {
                     isSecretImage.setImageResource(R.drawable.ic_baseline_check_box_outline_blank_24);
                     isSecretImage.setColorFilter(Color.parseColor("#707070"));
                     isSecretTextView.setTextColor(Color.parseColor("#707070"));
                     isSecret = false;
-                }else{
+                } else {
                     isSecretImage.setImageResource(R.drawable.ic_baseline_check_box_24);
                     isSecretImage.setColorFilter(Color.parseColor("#F08080"));
                     isSecretTextView.setTextColor(Color.parseColor("#F08080"));
@@ -201,24 +205,24 @@ public class PostActivity extends AppCompatActivity {
                     if (boardNum == 0) {
                         reply = new CommentItem(thisPostKakaoId, comment_kakaoId, comment_userId, comment, comment_date, true, false, realKakaoId);
                     } else if (boardNum == 1) {
-                        if(comment_kakaoId.equals(thisPostKakaoId)){
+                        if (comment_kakaoId.equals(thisPostKakaoId)) {
                             reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명", comment, comment_date, true, isReplySecret, realKakaoId);
-                        }else{
-                            if(secretMemberItem.size() == 0){
-                                reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+1, comment, comment_date, true, isReplySecret, realKakaoId);
-                                secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
-                            }else{
+                        } else {
+                            if (secretMemberItem.size() == 0) {
+                                reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명" + 1, comment, comment_date, true, isReplySecret, realKakaoId);
+                                secretMemberItems.add(new SecretMemberItem(comment_kakaoId, secretMemberItem.size() + 1));
+                            } else {
                                 Boolean isContainSecretMember = false;
-                                for(int i = 0; i<secretMemberItem.size(); i++){
-                                    if(secretMemberItem.get(i).getKakaoId().equals(comment_kakaoId)){
-                                        reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+secretMemberItem.get(i).getNum(), comment, comment_date, true, isReplySecret, realKakaoId);
+                                for (int i = 0; i < secretMemberItem.size(); i++) {
+                                    if (secretMemberItem.get(i).getKakaoId().equals(comment_kakaoId)) {
+                                        reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명" + secretMemberItem.get(i).getNum(), comment, comment_date, true, isReplySecret, realKakaoId);
                                         isContainSecretMember = true;
                                         break;
                                     }
                                 }
-                                if(isContainSecretMember == false){
-                                    reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+String.valueOf(secretMemberItem.size()+1), comment, comment_date, true, isReplySecret, realKakaoId);
-                                    secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
+                                if (isContainSecretMember == false) {
+                                    reply = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명" + String.valueOf(secretMemberItem.size() + 1), comment, comment_date, true, isReplySecret, realKakaoId);
+                                    secretMemberItems.add(new SecretMemberItem(comment_kakaoId, secretMemberItem.size() + 1));
                                 }
                             }
 
@@ -252,24 +256,24 @@ public class PostActivity extends AppCompatActivity {
                     if (boardNum == 0) {
                         item = new CommentItem(thisPostKakaoId, comment_kakaoId, comment_userId, comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
                     } else if (boardNum == 1) {
-                        if(comment_kakaoId.equals(thisPostKakaoId)){
+                        if (comment_kakaoId.equals(thisPostKakaoId)) {
                             item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명", comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
-                        }else{
-                            if(secretCommentMemberNum == 0){
-                                item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+1, comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
-                                secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
-                            }else{
+                        } else {
+                            if (secretCommentMemberNum == 0) {
+                                item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명" + 1, comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
+                                secretMemberItems.add(new SecretMemberItem(comment_kakaoId, secretMemberItem.size() + 1));
+                            } else {
                                 Boolean isContainSecretMember = false;
-                                for(int i = 0; i<secretMemberItem.size(); i++){
-                                    if(secretMemberItem.get(i).getKakaoId().equals(comment_kakaoId)){
-                                        item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+secretMemberItem.get(i).getNum(), comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
+                                for (int i = 0; i < secretMemberItem.size(); i++) {
+                                    if (secretMemberItem.get(i).getKakaoId().equals(comment_kakaoId)) {
+                                        item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명" + secretMemberItem.get(i).getNum(), comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
                                         isContainSecretMember = true;
                                         break;
                                     }
                                 }
-                                if(isContainSecretMember == false){
-                                    item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명"+String.valueOf(secretMemberItem.size()+1), comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
-                                    secretMemberItems.add( new SecretMemberItem(comment_kakaoId, secretMemberItem.size()+1));
+                                if (isContainSecretMember == false) {
+                                    item = new CommentItem(thisPostKakaoId, comment_kakaoId, "익명" + String.valueOf(secretMemberItem.size() + 1), comment, comment_date, false, false, new ArrayList<CommentItem>(), isSecret);
+                                    secretMemberItems.add(new SecretMemberItem(comment_kakaoId, secretMemberItem.size() + 1));
                                 }
                             }
                         }
@@ -283,6 +287,20 @@ public class PostActivity extends AppCompatActivity {
                     commentItems.add(item);
                 }
                 AddComment();
+
+                // 알림 데이터베이스 추가
+                if (isReply) {
+                    if (boardNum == 0)
+                        notification.notice_comment("자유게시판", id, thisPostKakaoId, comment_kakaoId, realKakaoId, comment, "reply", comment_date);
+                    else if (boardNum == 1)
+                        notification.notice_comment("비밀게시판", id, thisPostKakaoId, comment_kakaoId, realKakaoId, comment, "reply", comment_date);
+                } else {
+                    if (boardNum == 0)
+                        notification.notice_comment("자유게시판", id, thisPostKakaoId, comment_kakaoId, "", comment, "comment", comment_date);
+                    else if (boardNum == 1)
+                        notification.notice_comment("비밀게시판", id, thisPostKakaoId, comment_kakaoId, "", comment, "comment", comment_date);
+                }
+
 
                 imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
                 Intent intent = new Intent(getApplicationContext(), PostActivity.class);
@@ -301,7 +319,8 @@ public class PostActivity extends AppCompatActivity {
     private void AddComment() {
         db.collection(board).document(id)
                 .update("comment", commentItems);
-        if(boardNum==1) db.collection(board).document(id).update("secretMember", secretMemberItems);
+        if (boardNum == 1)
+            db.collection(board).document(id).update("secretMember", secretMemberItems);
         Toast.makeText(getApplicationContext(), "댓글을 등록하였습니다.", Toast.LENGTH_SHORT).show();
     }
 
@@ -349,7 +368,7 @@ public class PostActivity extends AppCompatActivity {
                                         String.valueOf(commentItem.get("realKakaoId"))
                                 ));
                                 if ((Boolean) commentItem.get("mode")) {
-                                    Log.d(TAG, "comments.get(i).getDate() : "+commentItems.get(i));
+                                    Log.d(TAG, "comments.get(i).getDate() : " + commentItems.get(i));
                                     ArrayList<CommentItem> replyList = (ArrayList<CommentItem>) commentItem.get("replyList");
                                     for (int j = 0; j < replyList.size(); j++) {
                                         Map replyItem = new HashMap();
@@ -364,12 +383,11 @@ public class PostActivity extends AppCompatActivity {
                                                 (Boolean) replyItem.get("secret"),
                                                 String.valueOf(replyItem.get("realKakaoId"))
                                         ));
-                                        Log.d(TAG, "replyItem : "+replyItem);
+                                        Log.d(TAG, "replyItem : " + replyItem);
 
                                     }
                                 }
                             }
-
 
 
                             // 댓글 개수 갱신
@@ -380,8 +398,8 @@ public class PostActivity extends AppCompatActivity {
                             commentRecyclerView.setAdapter(myRecyclerAdapter);
 
                             myRecyclerAdapter.setmCommentList(comments);
-                            for(int i = 0; i<comments.size(); i++){
-                                Log.d(TAG, ""+i+" : "+comments.get(i).getRealKakaoId()+"\n");
+                            for (int i = 0; i < comments.size(); i++) {
+                                Log.d(TAG, "" + i + " : " + comments.get(i).getRealKakaoId() + "\n");
                             }
 
                             // 댓글 개수 갱신
@@ -409,11 +427,11 @@ public class PostActivity extends AppCompatActivity {
 //                                    }
                                     // 대댓글이 아닌 댓글만 클릭 가능
                                     if (!comments.get(position).reply) {
-                                        if(comments.get(position).getSecret()){
-                                            if(!comments.get(position).getKakaoId().equals(comment_kakaoId)&&
-                                            !comments.get(position).getThisPostKakaoId().equals(comment_kakaoId)){
+                                        if (comments.get(position).getSecret()) {
+                                            if (!comments.get(position).getKakaoId().equals(comment_kakaoId) &&
+                                                    !comments.get(position).getThisPostKakaoId().equals(comment_kakaoId)) {
                                                 return;
-                                            }else{
+                                            } else {
                                                 isReplySecret = true;
                                             }
                                         }
@@ -425,9 +443,9 @@ public class PostActivity extends AppCompatActivity {
                                         if (commentItem.get("userId").equals("(삭제)")) {
                                             replyTextView.setText(String.valueOf("삭제된 댓글에 답글 남기는 중"));
                                         } else {
-                                            if(commentItem.get("kakaoId").equals(commentItem.get("thisPostKakaoId"))){
+                                            if (commentItem.get("kakaoId").equals(commentItem.get("thisPostKakaoId"))) {
                                                 replyTextView.setText(String.valueOf(commentItem.get("userId")) + "(작성자)에게 답글 남기는 중");
-                                            }else{
+                                            } else {
                                                 replyTextView.setText(String.valueOf(commentItem.get("userId")) + "에게 답글 남기는 중");
                                             }
 
@@ -440,7 +458,8 @@ public class PostActivity extends AppCompatActivity {
                                         replyButton.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                if(boardNum == 1)   isSecretLayout.setVisibility(View.VISIBLE);
+                                                if (boardNum == 1)
+                                                    isSecretLayout.setVisibility(View.VISIBLE);
                                                 replyLayout.setVisibility(View.GONE);
                                                 // EditText 포커스 제거
                                                 commentEditText.clearFocus();
@@ -481,6 +500,7 @@ public class PostActivity extends AppCompatActivity {
                                                 commentItem = (Map) commentItems.get(realPosition);
                                                 replyList = (ArrayList<CommentItem>) commentItem.get("replyList");
                                                 Log.d(TAG, "before delete : " + replyList.size() + "replyPosition : " + replyPosition);
+                                                notification.notice_delete_comment(id, commentItem.get("realKakaoId").toString(), comment_kakaoId, commentItem.get("date").toString());
                                                 replyList.remove(0 + replyPosition);
                                                 Log.d(TAG, "After delete : " + replyList.size());
                                                 commentItems.set(realPosition, new CommentItem(
@@ -511,6 +531,7 @@ public class PostActivity extends AppCompatActivity {
                                                         (ArrayList<CommentItem>) commentItem.get("replyList"),
                                                         (Boolean) commentItem.get("secret")
                                                 ));
+                                                notification.notice_delete_comment(id, commentItem.get("thisPostKakaoId").toString(), comment_kakaoId, commentItem.get("date").toString());
 //
 //                                                ArrayList<CommentItem> afterDeleteComments = new ArrayList<>();
 //                                                AlertDialog.Builder alert2 = new AlertDialog.Builder(PostActivity.this);
@@ -622,9 +643,9 @@ public class PostActivity extends AppCompatActivity {
         long diffTime = (curTime - regTime) / 1000;
         String msg = null;
         if (diffTime < TimeMaximum.SEC ||
-                (diffTime /= TimeMaximum.SEC) < TimeMaximum.MIN||
-                (diffTime /= TimeMaximum.MIN) < TimeMaximum.HOUR||
-                (diffTime /= TimeMaximum.HOUR) < TimeMaximum.DAY||
+                (diffTime /= TimeMaximum.SEC) < TimeMaximum.MIN ||
+                (diffTime /= TimeMaximum.MIN) < TimeMaximum.HOUR ||
+                (diffTime /= TimeMaximum.HOUR) < TimeMaximum.DAY ||
                 (diffTime /= TimeMaximum.DAY) < TimeMaximum.MONTH) {
 //            msg = (diffTime) + "달 전";
             msg = monthDateFormat.format(new Date(regTime));

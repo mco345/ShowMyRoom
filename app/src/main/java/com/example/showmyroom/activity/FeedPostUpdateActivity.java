@@ -165,8 +165,8 @@ public class FeedPostUpdateActivity extends AppCompatActivity {
 
                         Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
                         intent.putExtra("kakaoId", thisFeedKakaoId);
-                        intent.putExtra("isDelete", true);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        PreferenceManager.setBoolean(getApplicationContext(), "isDelete", true);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                     }
                 }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {

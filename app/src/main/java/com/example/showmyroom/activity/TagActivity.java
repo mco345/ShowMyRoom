@@ -151,6 +151,8 @@ public class TagActivity extends AppCompatActivity {
             Chip newChip = (Chip) inflater.inflate(R.layout.view_chip, chipGroup, false);
             newChip.setText(keyword);
 
+            keywordsList.add("#"+keyword);
+
             chipGroup.addView(newChip);
 
             newChip.setOnCloseIconClickListener(new View.OnClickListener() {
@@ -169,6 +171,8 @@ public class TagActivity extends AppCompatActivity {
     private void handleChipCloseIconClicked(Chip chip) {
         ChipGroup parent = (ChipGroup) chip.getParent();
         parent.removeView(chip);
+
+        keywordsList.remove("#"+chip.getText());
     }
 
     private void showSelections() {
@@ -178,7 +182,6 @@ public class TagActivity extends AppCompatActivity {
 
         for (int i = 0; i < count; i++) {
             Chip child = (Chip) chipGroup.getChildAt(i);
-            keywordsList.add("#"+child.getText().toString());
 
             if (s.equals("")) {
                 s = "#" + child.getText().toString();

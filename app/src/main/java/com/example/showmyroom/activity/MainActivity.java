@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener);
 
+        // isDelete
+        PreferenceManager.setBoolean(getApplicationContext(), "isDelete", false);
+
         // 카카오 아이디
         UserApiClient.getInstance().me(new Function2<User, Throwable, Unit>() {
             @Override

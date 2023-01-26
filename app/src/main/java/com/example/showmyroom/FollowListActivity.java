@@ -34,16 +34,20 @@ public class FollowListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
     // getIntent
-    private String isWhat;
+    private String isWhat, thisFeedKakaoId;
     private ArrayList<String> followersList = new ArrayList<>(), followingList = new ArrayList<>();
 
     // adapt member
-    private static final int ADAPT_VIEW = 1, DELETE_LOADING = 2;
+    private static final int ADAPT_VIEW = 1, RENEW = 2;
     private MyRecyclerAdapter_SearchMember myRecyclerAdapter = new MyRecyclerAdapter_SearchMember();
     private ArrayList<MemberItem> memberItems = new ArrayList<>();
 
     // 실시간 데이터베이스
     private DatabaseReference mDatabase;
+
+    // onResume
+    private boolean isFirstAdapt = true;
+    private String myKakaoId = "";
 
     Handler handler = new Handler() {
         @Override
@@ -51,12 +55,18 @@ public class FollowListActivity extends AppCompatActivity {
             switch(msg.what) {
                 case ADAPT_VIEW:
                     // 프래그먼트 첫 호출
+                    isFirstAdapt = false;
                     Log.d(TAG, String.valueOf(memberItems.size()));
                     recyclerView.setAdapter(myRecyclerAdapter);
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                     myRecyclerAdapter.setMemberItems(memberItems);
                     recyclerView.setLayoutManager(mLayoutManager);
                     break;
+                case RENEW:
+                    myRecyclerAdapter.setMemberItems(memberItems);
+                    myRecyclerAdapter.notifyDataSetChanged();
+                    break;
+
             }
         }
     };
@@ -69,6 +79,7 @@ public class FollowListActivity extends AppCompatActivity {
 
         // getIntent
         isWhat = getIntent().getStringExtra("isWhat");
+        thisFeedKakaoId = getIntent().getStringExtra("thisFeedKakaoId");
         followersList = getIntent().getStringArrayListExtra("followersList");
         followingList = getIntent().getStringArrayListExtra("followingList");
 
@@ -76,6 +87,9 @@ public class FollowListActivity extends AppCompatActivity {
         followTextView = findViewById(R.id.followTextView);
         followNumberTextView = findViewById(R.id.followNumberTextView);
         recyclerView = findViewById(R.id.recyclerView);
+
+        // myKakaoId
+        myKakaoId = PreferenceManager.getString(getApplicationContext(), "kakaoId");
 
         // follow TextView
         switch (isWhat){
@@ -90,7 +104,7 @@ public class FollowListActivity extends AppCompatActivity {
         }
 
         // adaptMember
-        adaptMember(isWhat);
+        adaptMember(isWhat, ADAPT_VIEW);
 
         // item click
         myRecyclerAdapter.setOnItemClickListener(new MyRecyclerAdapter_SearchMember.OnItemClickListener() {
@@ -103,7 +117,53 @@ public class FollowListActivity extends AppCompatActivity {
         });
     }
 
-    private void adaptMember(String isWhat) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // 내 피드의 팔로워, 팔로우 목록일 때만 RENEW
+        if(!isFirstAdapt && myKakaoId.equals(thisFeedKakaoId)){
+            switch (isWhat){
+                case "follower":
+                    followersList = new ArrayList<>();
+                    followTextView.setText("팔로워 ");
+                    mDatabase.child("followers").child(thisFeedKakaoId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                followersList.add(String.valueOf(dataSnapshot.getValue()));
+                            }
+                            followNumberTextView.setText(followersList.size() + "명");
+                            adaptMember(isWhat, RENEW);
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    });
+                    break;
+                case "following":
+                    followingList = new ArrayList<>();
+                    followTextView.setText("팔로잉 ");
+                    mDatabase.child("following").child(thisFeedKakaoId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                                followingList.add(String.valueOf(dataSnapshot.getValue()));
+                            }
+                            followNumberTextView.setText(followingList.size() + "명");
+                            adaptMember(isWhat, RENEW);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    });
+                    break;
+            }
+        }
+    }
+
+    private void adaptMember(String isWhat, int send_message) {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         memberItems = new ArrayList<>();
@@ -137,7 +197,7 @@ public class FollowListActivity extends AppCompatActivity {
                     }
                     Log.d(TAG, ""+memberItems);
                 }
-                handler.sendEmptyMessage(ADAPT_VIEW);
+                handler.sendEmptyMessage(send_message);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

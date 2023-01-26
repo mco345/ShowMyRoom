@@ -1,5 +1,6 @@
 package com.example.showmyroom.adapter;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -104,6 +105,8 @@ public class MyRecyclerAdapter_SearchMember extends RecyclerView.Adapter<MyRecyc
             pathRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
+                    Activity activity = (Activity) memberImageView.getContext();
+                    if(activity.isFinishing()) return;
                     Glide.with(memberImageView.getContext()).load(uri).apply(RequestOptions.bitmapTransform(new RoundedCorners(14))).into(memberImageView);
                     memberIdTextView.setText(memberItems.getUserId());
                     memberNameTextView.setText(memberItems.getName());

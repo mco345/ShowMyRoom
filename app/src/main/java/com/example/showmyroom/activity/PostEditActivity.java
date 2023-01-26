@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class PostEditActivity extends AppCompatActivity {
     private static final String TAG = "PostEditActivity";
@@ -83,8 +84,28 @@ public class PostEditActivity extends AppCompatActivity {
                 alert.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        // 게시물 데이터베이스 삭제
                         db.collection(board).document(id)
                                 .delete();
+                        // 알림 데이터베이스 삭제(해당 게시물때문에 발생한 알림 모두 삭제)
+                        db.collection("notification")
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if(task.isSuccessful()){
+                                    for(DocumentSnapshot document : task.getResult()){
+                                        if(document.getData().get("postId").equals(id)){
+                                            db.collection("notification").document(document.getId()).delete();
+                                        }
+                                    }
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
                         PreferenceManager.setInt(getApplicationContext(), "BackToMain", 2);
                         Intent intent = new Intent(getApplicationContext() , MainActivity.class);
                         intent.putExtra("boardNum", boardNum);

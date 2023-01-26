@@ -52,7 +52,7 @@ public class MenuFragment extends Fragment {
     RecyclerView recyclerView;
     private MyRecyclerAdapter_Board myRecyclerAdapterBoard;
     private ArrayList<BoardItem> boardItems = new ArrayList<>();
-    private View refreshButton, fadeInButton, fadeOutButton, menuButton, searchButton, writeButton;
+    private View refreshButton, fadeInButton, fadeOutButton, searchButton, writeButton;
     private TextView boardTextView, noResultTextView;
     private EditText searchEditText;
     private LinearLayout boardMenuButton, searchLayout, progressBarLayout, noResultLayout;

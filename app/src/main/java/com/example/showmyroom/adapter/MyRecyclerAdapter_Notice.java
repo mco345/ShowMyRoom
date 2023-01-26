@@ -160,6 +160,7 @@ public class MyRecyclerAdapter_Notice extends RecyclerView.Adapter<RecyclerView.
                     String userId = snapshot.getValue().toString();
 
                     String message = userId + "님이 회원님";
+                    if(noticeItem.getWhatBoard().equals("비밀게시판")) message = "익명의 회원님이 회원님";
                     switch (noticeItem.getType()) {
                         case "like":
                             message = message + "의 게시물에 좋아요를 눌렀습니다.";

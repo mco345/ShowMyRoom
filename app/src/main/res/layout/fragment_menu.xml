@@ -68,13 +68,6 @@
                 android:backgroundTint="@color/white"
                 android:src="@drawable/ic_baseline_cancel_24"
                 android:visibility="gone" />
-
-            <ImageButton
-                android:id="@+id/menuButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
-                android:src="@drawable/ic_baseline_menu_24" />
         </LinearLayout>
 
         <LinearLayout
